@@ -100,4 +100,8 @@ Consider the simple 4 polygon set. Assuming we wish to use smooth shading for th
      n = \begin{bmatrix} 0.0765 \\ -0.0280 \\ 0.9233 \end{bmatrix}
      $$
 
-4. **TODO**
+4. Why do we compute the vertex normal? *Hint: how do we use this in Q2 above?*
+
+   * We compute the vertex normal because we want to achieve a smooth shading. If we only use regular normals, we'll end up with discrete transitions (This will create facets on the surface).
+   * By having vertex normals, we can easily interpolate the shading (This will create a smooth shading). For example, if we use the phong shading model, the "n" in the formula can be interpolated to get a smooth shading.
+
