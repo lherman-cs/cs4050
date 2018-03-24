@@ -45,10 +45,23 @@ $$
 
    * $$
      diffuse =  k_d L_d \cos{\theta} \\
-     diffuse_r = 0.0 \times 1.0 \times 0.5145 = 0 \\
-     diffuse_g = 0.0 \times 1.0 \times 0.5145 = 0 \\
-     diffuse_b = 0.5 \times 1.0 \times 0.5145 = 0.2572
+     diffuse = 
+     \begin{bmatrix}
+     0.0 \times 1.0 \\
+     0.0 \times 1.0 \\
+     0.5 \times 1.0 
+     \end{bmatrix}
+     \times 0.5145 \\
+     diffuse = 
+     \begin{bmatrix} 0 \\ 0 \\ 0.2572 \end{bmatrix} \\
      $$
+
+
+   $$
+   diffuse_r = 0 \\
+   diffuse_g = 0 \\
+   diffuse_b = 0.2572
+   $$
 
 2. What is the specular contribution to the pixel assuming the shininess coefficient is 5?
 
@@ -71,9 +84,21 @@ $$
 
    * $$
      specular = k_s L_s \cos^\alpha{\phi} \\
-     specular_r = 0.0 \times 1.0 \times 0.4166^{0.9939} = 0 \\
-     specular_g = 0.0 \times 1.0 \times 0.4166^{0.9939} = 0 \\
-     specular_b = 0.3 \times 1.0 \times 0.4166^{0.9939} = 0.1256
+     specular = 
+     \begin{bmatrix}
+     0.0 \times 1.0 \\
+     0.0 \times 1.0 \\
+     0.3 \times 1.0 
+     \end{bmatrix}
+     \times 0.4166^{0.9939}  \\
+     specular = 
+     \begin{bmatrix} 0 \\ 0 \\ 0.1256 \end{bmatrix}
+     $$
+
+   * $$
+     specular_r = 0 \\
+     specular_g = 0 \\
+     specular_b = 0.1256
      $$
 
 
