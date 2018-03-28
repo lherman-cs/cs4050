@@ -15,15 +15,15 @@ Consider the set up shown, assuming eye position E, object collision point C, an
 > r = perfect reflector
 
 $$
-I = \begin{bmatrix} 0 \\ 75 \\ 45 \end{bmatrix} \
+I = \begin{bmatrix} 0 \\ -65 \\ 45 \end{bmatrix} \
 v = \begin{bmatrix} 0 \\ 10 \\ 90 \end{bmatrix} \
 n = \begin{bmatrix} 0 \\ 0 \\ 1 \end{bmatrix} \\
 $$
 
 $$
 r = -I - 2(-I \cdot n)n \\
-r = \begin{bmatrix} 0 \\ -75 \\ -45 \end{bmatrix} + 90 \begin{bmatrix} 0 \\ 0 \\ 1 \end{bmatrix} \\
-r = \begin{bmatrix} 0 \\ -75 \\ 45 \end{bmatrix}
+r = \begin{bmatrix} 0 \\ 65 \\ -45 \end{bmatrix} + 90 \begin{bmatrix} 0 \\ 0 \\ 1 \end{bmatrix} \\
+r = \begin{bmatrix} 0 \\ 65 \\ 45 \end{bmatrix}
 $$
 
 1. What is the diffuse contribution to the pixel (seen from the side view) for this set up?
@@ -32,15 +32,15 @@ $$
      \cos{\theta} = \frac{I \cdot n}{|I| \times |n|} \\
      \cos{\theta} = 
      \frac{
-         \begin{bmatrix} 0 \\ 75 \\ 45 \end{bmatrix}
+         \begin{bmatrix} 0 \\ -65 \\ 45 \end{bmatrix}
          \cdot
          \begin{bmatrix} 0 \\ 0 \\ 1 \end{bmatrix}
      }
      {
-         \sqrt{7650} \times 1
+         \sqrt{6250} \times 1
      } \\
-     \cos{\theta} = \frac{45}{87.4643} \\
-     \cos{\theta} = 0.5145
+     \cos{\theta} = \frac{45}{79.0569} \\
+     \cos{\theta} = 0.5692
      $$
 
    * $$
@@ -51,35 +51,36 @@ $$
      0.0 \times 1.0 \\
      0.5 \times 1.0 
      \end{bmatrix}
-     \times 0.5145 \\
+     \times 0.5692 \\
      diffuse = 
-     \begin{bmatrix} 0 \\ 0 \\ 0.2572 \end{bmatrix} \\
+     \begin{bmatrix} 0 \\ 0 \\ 0.2846 \end{bmatrix} \\
      $$
 
 
-   $$
-   diffuse_r = 0 \\
+
+
+$$
+diffuse_r = 0 \\
    diffuse_g = 0 \\
-   diffuse_b = 0.2572
-   $$
+   diffuse_b = 0.2846
+$$
 
 2. What is the specular contribution to the pixel assuming the shininess coefficient is 5?
 
    * $$
-     \cos{\theta} = 0.9939 \\ 
      \cos{\phi} = \frac{v \cdot r}{|v| \times |r|} \\
      \cos{\phi} = 
      \frac{
      	\begin{bmatrix} 0 \\ 10 \\ 90 \end{bmatrix}
      	\cdot
-     	\begin{bmatrix} 0 \\ -75 \\ 45 \end{bmatrix}
+     	\begin{bmatrix} 0 \\ 65 \\ 45 \end{bmatrix}
      }
      {
-     	\sqrt{8200} \times \sqrt{7650}
+     	\sqrt{8200} \times \sqrt{6250}
      } \\
 
-     \cos{\phi} = \frac{3300}{7920.2273} \\
-     \cos{\phi} = 0.4166
+     \cos{\phi} = \frac{4700}{7158.9105} \\
+     \cos{\phi} = 0.6565
      $$
 
    * $$
@@ -90,16 +91,18 @@ $$
      0.0 \times 1.0 \\
      0.3 \times 1.0 
      \end{bmatrix}
-     \times 0.4166^{0.9939}  \\
+     \times 0.6565^{5}  \\
      specular = 
-     \begin{bmatrix} 0 \\ 0 \\ 0.1256 \end{bmatrix}
+     \begin{bmatrix} 0 \\ 0 \\ 0.0366 \end{bmatrix}
      $$
 
    * $$
      specular_r = 0 \\
      specular_g = 0 \\
-     specular_b = 0.1256
+     specular_b = 0.0366
      $$
+
+
 
 
 ## Smooth Shading

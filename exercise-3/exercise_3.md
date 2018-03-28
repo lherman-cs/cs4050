@@ -87,7 +87,7 @@
      \end{bmatrix}
      $$
 
-2. Show that the angles of the triangle are not preserved across the transformation. **TODO**
+2. Show that the angles of the triangle are not preserved across the transformation.
 
    * $$
      \theta_1 = \arccos (
@@ -101,12 +101,12 @@
      \\
      \theta_1^{'} = \arccos (
      \frac{\begin{bmatrix} 3 \\ -5 \\ 0 \end{bmatrix} \cdot
-     \begin{bmatrix} -\frac{47}{9} \\ -\frac{79}{9} \\ 0 \end{bmatrix}}
-     {5.83095 \times 10.21376}
+     \begin{bmatrix} -\frac{47}{9} \\ -\frac{70}{9} \\ 0 \end{bmatrix}}
+     {5.8309 \times 9.3682}
      ) \\
 
-     \theta_1^{'} = \arccos(\frac{28.22222}{{5.83095 \times 10.21376}}) \\
-     \theta_1^{'} = 61.71^\circ \\
+     \theta_1^{'} = \arccos(\frac{23.2222}{{5.8309 \times 9.3682}}) \\
+     \theta_1^{'} = 64.84^\circ \\
      $$
 
    * $$
@@ -152,9 +152,12 @@
      $$
 
 
+
+
+
 ![viewing2](assets/viewing2.png)
 
-3. Consider the perspective projections shown. If the viewing direction is in the negative Z direction and the image plane is at z = 1, where is the projected triangle?
+3. Consider the perspective projections shown. If the viewing direction is in the negative Z direction and the image plane is at z = -1, where is the projected triangle?
 
    * $$
      \begin{bmatrix} 
@@ -265,7 +268,5 @@
      $$
 
 4. If the camera and the triangle are translated by the same displacement, will the projected triangle move relative to the image plane? Why or why not?
-
-   **TODO**
 
    * Yes, because we see the triangle through the image plane
