@@ -33,6 +33,9 @@ void read_model(const char *model_file, Model *model);
 Vertex get_avg(std::vector<Vertex> &vertices);
 Vertex get_max(std::vector<Vertex> &vertices);
 Vertex get_min(std::vector<Vertex> &vertices);
+void normalize(std::vector<Vertex> &vertices, double height, double width,
+               double scale);
+void move(std::vector<Vertex> &vertices, const Vertex &to);
 
 // Filling polygons
 struct EdgeInfo {

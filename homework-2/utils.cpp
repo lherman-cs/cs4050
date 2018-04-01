@@ -1,6 +1,7 @@
 #include "utils.hpp"
 #include <math.h>
 #include <string.h>
+#include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <limits>
@@ -125,6 +126,45 @@ Vertex get_min(std::vector<Vertex> &vertices) {
     v.z = vertex.z < v.z ? vertex.z : v.z;
   }
   return v;
+}
+
+// Move all polygons to the origin and scale them so that
+// they fit into the screen. Then, move the polygons
+// to the middle of the screen
+void normalize(std::vector<Vertex> &vertices, double height, double width,
+               double scale) {
+  int center_x = ((int)width) >> 1;
+  int center_y = ((int)height) >> 1;
+
+  // Move to origin
+  move(vertices, {0, 0, 0});
+
+  // Normalize
+  Vertex max = get_max(vertices), min = get_min(vertices);
+  scale *= std::min(width / (max.x - min.x), height / (max.y - min.y));
+  auto normalize_fn = [&max, &min, scale](Vertex &v) {
+    v.x *= scale;
+    v.y *= scale;
+    // normalize to be between [0, 1]
+    v.z = (v.z - min.z) / (max.z - min.z);
+  };
+  std::for_each(vertices.begin(), vertices.end(), normalize_fn);
+
+  // Move to center
+  Vertex avg = get_avg(vertices);
+  move(vertices, {(double)center_x, (double)center_y, avg.z});
+}
+
+// Move to the given vertex as a center
+void move(std::vector<Vertex> &vertices, const Vertex &to) {
+  Vertex avg = get_avg(vertices);
+
+  auto move_fn = [&avg, &to](Vertex &v) {
+    v.x = v.x - avg.x + to.x;
+    v.y = v.y - avg.y + to.y;
+    v.z = v.z - avg.z + to.z;
+  };
+  std::for_each(vertices.begin(), vertices.end(), move_fn);
 }
 
 /**

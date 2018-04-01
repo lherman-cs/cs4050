@@ -50,7 +50,6 @@ Model model;
 // My functions
 void init_display(const char *model_path);
 void display(void);
-void normalize_vertices(void);
 void wire_frame(void);
 void z_buffer(void);
 void toggle_perspective(bool z_buffer_mode);
@@ -91,35 +90,13 @@ using the escape key.						  */
 // My functions start here
 void init_display(const char *model_path) {
   read_model(model_path, &model);
-  normalize_vertices();
+  normalize(model.vertices, HEIGHT, WIDTH, SCALE);
   wire_frame();
 
   glutSwapBuffers();
 }
 
 void display(void) {}
-
-// Move all polygons to the origin and scale them so that
-// they fit into the screen. Then, move the polygons
-// to the middle of the screen
-void normalize_vertices(void) {
-  std::vector<Vertex> &vertices = model.vertices;
-  double center_x = WIDTH >> 1, center_y = HEIGHT >> 1;
-
-  // Displacement, scaling, and center
-  Vertex avg = get_avg(vertices), max = get_max(vertices),
-         min = get_min(vertices);
-  double scale =
-      std::min(WIDTH / (max.x - min.x), HEIGHT / (max.y - min.y)) * SCALE;
-
-  for (auto &vertex : vertices) {
-    vertex.x = scale * (vertex.x - avg.x) + center_x;
-    vertex.y = scale * (vertex.y - avg.y) + center_y;
-
-    // Normalize z to be in between [0, 1]
-    vertex.z = (vertex.z - min.z) / (max.z - min.z);
-  }
-}
 
 // Connect all vertices with lines define in each face
 // Assume that the format uses 1-based indices
@@ -214,36 +191,32 @@ void z_buffer(void) {
 
 void toggle_perspective(bool z_buffer_mode) {
   static bool perspective_mode = false;
-  static std::vector<double> prev_z_values;
-  double d = 0.2;
+  static std::vector<Vertex> prev;
+  std::vector<Vertex> &vertices = model.vertices;
+  double d = 1;
 
   if (!perspective_mode) {
-    // Initialize prev_z_values
-    if (prev_z_values.empty())
-      for (Vertex &v : model.vertices) prev_z_values.push_back(v.z);
+    // Store current vertices
+    prev = vertices;
 
-    for (Vertex &v : model.vertices) {
-      double tmp = v.x;
-      if (v.z != 0) {
-        v.x = v.x * d / v.z;
-        v.y = v.y * d / v.z;
-        // std::cout << tmp << " " << v.x << " " << d / v.z << "\n";
-        v.z = d;
-      }
+    // Move the objects to be a little bit far away
+    // from the camera
+    move(vertices, {0, 0, 2});
+
+    // Do perspective view transformation
+    for (Vertex &v : vertices) {
+      v.x *= d / v.z;
+      v.y *= d / v.z;
     }
-  } else {
-    for (unsigned i = 0; i < model.vertices.size(); i++) {
-      if (model.vertices[i].z != 0) {
-        model.vertices[i].x *= prev_z_values[i] / d;
-        model.vertices[i].y *= prev_z_values[i] / d;
-        model.vertices[i].z = prev_z_values[i];
-      }
-    }
-  }
+
+    // Normalize it so that it fits the screen
+    normalize(vertices, HEIGHT, WIDTH, SCALE);
+  } else
+    vertices = prev;
 
   perspective_mode ^= 1;
+
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  normalize_vertices();
   if (z_buffer_mode)
     z_buffer();
   else
