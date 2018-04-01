@@ -1,0 +1,346 @@
+//
+//		          Programming Assignment #1
+//
+//			        Victor Zordan
+//
+//
+//
+/***************************************************************************/
+
+/**
+ * Name			: Lukas Herman
+ * Homework # 	: 1
+ *
+ * Conventions	:
+ * 	- "_": means previous value. Ex: x_last_ -> previous value of x_last
+ */
+
+/* Include needed files */
+#include <GL/gl.h>
+#include <GL/glu.h>
+#include <GL/glut.h>  // The GL Utility Toolkit (Glut) Header
+
+#include <assert.h>
+#include <math.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+#include <unistd.h>
+#include <algorithm>
+#include <iostream>
+#include <limits>
+#include <numeric>
+#include <stack>
+#include <unordered_map>
+#include <vector>
+
+#include "utils.hpp"
+
+#define WIDTH 500
+#define HEIGHT 500
+#define SCALE 0.8
+#define MIN_INTENSITY 0.3
+#define MAX_INTENSITY 1.0
+
+int x_last, y_last;
+Model model;
+
+// My functions
+void init_display(const char *model_path);
+void display(void);
+void normalize_vertices(void);
+void wire_frame(void);
+void z_buffer(void);
+void toggle_perspective(bool z_buffer_mode);
+void draw_line(int x1, int y1, int x2, int y2);
+
+// Your functions
+void init_window(void);
+void write_pixel(int x, int y, double intensity);
+void mouse(int button, int state, int x, int y);
+void keyboard(unsigned char key, int x, int y);
+
+/***************************************************************************/
+
+int main(int argc, char *argv[]) {
+  /* This main function sets up the main loop of the program and continues the
+loop until the end of the data is reached.  Then the window can be closed
+using the escape key.						  */
+  if (argc != 2) {
+    printf("Usage: ./assn2 [model_path]\n");
+    return 1;
+  }
+
+  glutInit(&argc, argv);
+  glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
+  glutInitWindowSize(500, 500);
+  glutCreateWindow("Computer Graphics");
+  glutDisplayFunc(display);
+  glutIdleFunc(display);
+  glutMouseFunc(mouse);
+  glutKeyboardFunc(keyboard);
+
+  init_window();  // create_window
+
+  init_display(argv[1]);
+  glutMainLoop();  // Initialize The Main Loop
+}
+
+// My functions start here
+void init_display(const char *model_path) {
+  read_model(model_path, &model);
+  normalize_vertices();
+  wire_frame();
+
+  glutSwapBuffers();
+}
+
+void display(void) {}
+
+// Move all polygons to the origin and scale them so that
+// they fit into the screen. Then, move the polygons
+// to the middle of the screen
+void normalize_vertices(void) {
+  std::vector<Vertex> &vertices = model.vertices;
+  double center_x = WIDTH >> 1, center_y = HEIGHT >> 1;
+
+  // Displacement, scaling, and center
+  Vertex avg = get_avg(vertices), max = get_max(vertices),
+         min = get_min(vertices);
+  double scale =
+      std::min(WIDTH / (max.x - min.x), HEIGHT / (max.y - min.y)) * SCALE;
+
+  for (auto &vertex : vertices) {
+    vertex.x = scale * (vertex.x - avg.x) + center_x;
+    vertex.y = scale * (vertex.y - avg.y) + center_y;
+
+    // Normalize z to be in between [0, 1]
+    vertex.z = (vertex.z - min.z) / (max.z - min.z);
+  }
+}
+
+// Connect all vertices with lines define in each face
+// Assume that the format uses 1-based indices
+void wire_frame(void) {
+  const std::vector<Face> &faces = model.faces;
+
+  for (const Face &face : faces) {
+    for (unsigned i = 0; i < face.size(); i++) {
+      const Vertex &before = *face[i].vertex;
+      const Vertex &after = *face[(i + 1) % face.size()].vertex;
+      draw_line(before.x, before.y, after.x, after.y);
+    }
+  }
+}
+
+void z_buffer(void) {
+  static double depth_buffer[HEIGHT][WIDTH];
+  // Initialize depth_buffer to zero
+  memset(depth_buffer, 0, sizeof(double) * HEIGHT * WIDTH);
+
+  double color = MIN_INTENSITY,
+         color_inc = (MAX_INTENSITY - MIN_INTENSITY) / model.faces.size();
+
+  std::unordered_map<int, std::vector<EdgeInfo>> edge_table;
+  std::vector<EdgeInfo> ael;
+
+  for (const Face &face : model.faces) {
+    double min_y = std::numeric_limits<double>::max(),
+           max_y = std::numeric_limits<double>::min();
+
+    // This call will clear edge_table and
+    // build a new one using the given face
+    build_edge_table(face, edge_table);
+
+    // Get min and max y
+    for (const FaceElement &el : face) {
+      min_y = el.vertex->y < min_y ? el.vertex->y : min_y;
+      max_y = el.vertex->y > max_y ? el.vertex->y : max_y;
+    }
+
+    // For each scanline s
+    int start_y = (int)round(min_y), end_y = (int)round(max_y);
+    for (int s = start_y; s <= end_y; s++) {
+      // Add edge_table[s] to the ael
+      ael.insert(ael.end(), edge_table[s].begin(), edge_table[s].end());
+
+      if (!ael.empty()) {
+        auto x_comparitor = [](const EdgeInfo &info1, const EdgeInfo &info2) {
+          return info1.x_cur < info2.x_cur;
+        };
+        std::sort(ael.begin(), ael.end(), x_comparitor);
+
+        // Fill pixels between pairs of edges
+        for (unsigned pair_i = 0; pair_i < ael.size(); pair_i += 2) {
+          const EdgeInfo &edge1 = ael[pair_i];
+          const EdgeInfo &edge2 = ael[pair_i + 1];
+          int start_x = (int)round(edge1.x_cur),
+              end_x = (int)round(edge2.x_cur);
+          double cur_z = edge1.z_cur,
+                 inc_z = (edge1.z_cur - edge2.z_cur) / (start_x - end_x);
+
+          for (int x = start_x; x <= end_x; x++) {
+            if (cur_z > depth_buffer[s][x]) {
+              write_pixel(x, s, color);
+              depth_buffer[s][x] = cur_z;
+            }
+
+            cur_z += inc_z;
+          }
+        }
+
+        // Delete finished edges
+        auto is_finished = [s](const EdgeInfo &edge) {
+          return edge.y_upper == s + 1;
+        };
+        ael.erase(std::remove_if(ael.begin(), ael.end(), is_finished),
+                  ael.end());
+
+        // Update x and z values for edges in ael
+        auto update = [](EdgeInfo &edge) {
+          edge.x_cur += edge.x_inc;
+          edge.z_cur += edge.z_inc;
+        };
+        std::for_each(ael.begin(), ael.end(), update);
+      }
+    }
+
+    ael.clear();
+    color += color_inc;
+  }
+}
+
+void toggle_perspective(bool z_buffer_mode) {
+  static bool perspective_mode = false;
+  static std::vector<double> prev_z_values;
+  double d = 0.2;
+
+  if (!perspective_mode) {
+    // Initialize prev_z_values
+    if (prev_z_values.empty())
+      for (Vertex &v : model.vertices) prev_z_values.push_back(v.z);
+
+    for (Vertex &v : model.vertices) {
+      double tmp = v.x;
+      if (v.z != 0) {
+        v.x = v.x * d / v.z;
+        v.y = v.y * d / v.z;
+        // std::cout << tmp << " " << v.x << " " << d / v.z << "\n";
+        v.z = d;
+      }
+    }
+  } else {
+    for (unsigned i = 0; i < model.vertices.size(); i++) {
+      if (model.vertices[i].z != 0) {
+        model.vertices[i].x *= prev_z_values[i] / d;
+        model.vertices[i].y *= prev_z_values[i] / d;
+        model.vertices[i].z = prev_z_values[i];
+      }
+    }
+  }
+
+  perspective_mode ^= 1;
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  normalize_vertices();
+  if (z_buffer_mode)
+    z_buffer();
+  else
+    wire_frame();
+  glutSwapBuffers();
+}
+
+void draw_line(int x_, int y_, int x, int y) {
+  int dx = x - x_;
+  int dy = y - y_;
+  int steps = abs(dy) > abs(dx) ? abs(dy) : abs(dx);
+
+  double x_plot = x_, y_plot = y_;
+  double x_step = (double)dx / steps, y_step = (double)dy / steps;
+
+  write_pixel(x_, y_, 1.0);
+
+  for (int i = 0; i < steps; i++) {
+    x_plot += x_step;
+    y_plot += y_step;
+
+    write_pixel((int)round(x_plot), (int)round(y_plot), 1.0);
+  }
+}
+
+/***************************************************************************/
+
+void init_window()
+/* Clear the image area, and set up the coordinate system */
+{
+  /* Clear the window */
+  glClearColor(0.0, 0.0, 0.0, 0.0);
+  glShadeModel(GL_SMOOTH);
+  glOrtho(0, WIDTH, 0, HEIGHT, -1.0, 1.0);
+}
+
+/***************************************************************************/
+
+void write_pixel(int x, int y, double intensity)
+/* Turn on the pixel found at x,y */
+{
+  glColor3f(intensity, intensity, intensity);
+  glBegin(GL_POINTS);
+  glVertex3i(x, y, 0);
+  glEnd();
+}
+
+/***************************************************************************/
+void mouse(int button, int state, int x, int y) {
+  /* This function I finessed a bit, the value of the printed x,y should
+match the screen, also it remembers where the old value was to avoid multiple
+readings from the same mouse click.  This can cause problems when trying to
+start a line or curve where the last one ended */
+  static int oldx = 0;
+  static int oldy = 0;
+  int mag;
+
+  y *= -1;   // align y with mouse
+  y += 500;  // ignore
+  mag = (oldx - x) * (oldx - x) + (oldy - y) * (oldy - y);
+  if (mag > 20) {
+    printf(" x,y is (%d,%d)\n", x, y);
+  }
+
+  oldx = x;
+  oldy = y;
+  x_last = x;
+  y_last = y;
+}
+
+/***************************************************************************/
+void keyboard(unsigned char key, int x, int y)  // Create Keyboard Function
+{
+  static bool z_buffer_mode = false;
+  switch (key) {
+    case 27:    // When Escape Is Pressed...
+      exit(0);  // Exit The Program
+      break;
+    case '1':  // stub for new screen
+      printf("New screen\n");
+      break;
+    case 'z':
+      if (!z_buffer_mode) {
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        z_buffer();
+        glutSwapBuffers();
+      } else {
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        wire_frame();
+        glutSwapBuffers();
+      }
+      z_buffer_mode ^= 1;
+      break;
+    case 'v':
+      toggle_perspective(z_buffer_mode);
+      break;
+    default:
+      break;
+  }
+}

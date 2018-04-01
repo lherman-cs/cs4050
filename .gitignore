@@ -1,3 +1,6 @@
 **.o
 assn1
 .vscode
+*.out
+assn2
+test.sh
