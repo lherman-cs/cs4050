@@ -193,7 +193,7 @@ void toggle_perspective(bool z_buffer_mode) {
   static bool perspective_mode = false;
   static std::vector<Vertex> prev;
   std::vector<Vertex> &vertices = model.vertices;
-  double d = 1;
+  double d = -0.5;
 
   if (!perspective_mode) {
     // Store current vertices
@@ -201,7 +201,7 @@ void toggle_perspective(bool z_buffer_mode) {
 
     // Move the objects to be a little bit far away
     // from the camera
-    move(vertices, {0, 0, 2});
+    move(vertices, {0, 0, -2});
 
     // Do perspective view transformation
     for (Vertex &v : vertices) {
