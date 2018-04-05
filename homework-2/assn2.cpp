@@ -208,16 +208,22 @@ void toggle_perspective(bool z_buffer_mode) {
     // Store current vertices
     prev = vertices;
 
+    Vertex max = get_max(vertices), min = get_min(vertices);
+    auto min_max_norm_fn = [&max, &min](Vertex &v) {
+      v.z = (v.z - min.z) / (max.z - min.z);
+    };
+    auto perspective_fn = [d](Vertex &v) {
+      v.x *= d / v.z;
+      v.y *= d / v.z;
+    };
+
+    // Do a min-max normalization to be in between 0 and 1
+    std::for_each(vertices.begin(), vertices.end(), min_max_norm_fn);
     // Move the objects to be a little bit far away
     // from the camera
     move(vertices, {0, 0, -2});
-
     // Do perspective view transformation
-    for (Vertex &v : vertices) {
-      v.x *= d / v.z;
-      v.y *= d / v.z;
-    }
-
+    std::for_each(vertices.begin(), vertices.end(), perspective_fn);
     // Normalize it so that it fits the screen
     normalize(vertices, HEIGHT, WIDTH, SCALE);
   } else
@@ -225,12 +231,7 @@ void toggle_perspective(bool z_buffer_mode) {
 
   perspective_mode ^= 1;
 
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  if (z_buffer_mode)
-    z_buffer();
-  else
-    wire_frame();
-  glutSwapBuffers();
+  refresh(z_buffer_mode);
 }
 
 void interactive_handler(bool z_buffer_mode, unsigned char mode,
