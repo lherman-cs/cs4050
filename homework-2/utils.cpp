@@ -91,9 +91,10 @@ Vertex get_avg(std::vector<Vertex> &vertices) {
   Vertex v;
   for (const auto &vertex : vertices) {
     v.x += vertex.x;
-    v.y += vertex.y;
-    v.z += vertex.z;
-  }
+    n++;
+    v.x += (vertex.x - v.x) / n;
+    v.y += (vertex.y - v.y) / n;
+    v.z += (vertex.z - v.z) / n;
 
   v.x /= vertices.size();
   v.y /= vertices.size();
