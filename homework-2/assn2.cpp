@@ -38,8 +38,8 @@
 
 #include "utils.hpp"
 
-#define WIDTH 1000
-#define HEIGHT 1000
+#define WIDTH 800
+#define HEIGHT 800
 #define SCALE 0.8
 #define MIN_INTENSITY 0.3
 #define MAX_INTENSITY 1.0
