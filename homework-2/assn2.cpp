@@ -167,7 +167,8 @@ void z_buffer(void) {
                  inc_z = (edge1.z_cur - edge2.z_cur) / (start_x - end_x);
 
           for (int x = start_x; x <= end_x; x++) {
-            if (cur_z > depth_buffer[s][x]) {
+            if (s >= 0 && s < HEIGHT && x >= 0 && x < WIDTH &&
+                cur_z > depth_buffer[s][x]) {
               write_pixel(x, s, color);
               depth_buffer[s][x] = cur_z;
             }
