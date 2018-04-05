@@ -3,7 +3,7 @@ CC=g++
 ## Linker
 LD=$(CC)
 ## Flags
-CPPFLAGS = -Wall -g -DLINUX -std=c++11
+CPPFLAGS = -O3 -std=c++11
 #CPPFLAGS= 
 LFLAGS = -lglut -L/usr/lib -L/usr/X11R6/lib -lXi -lXmu -lGL -lGLU -lm
 

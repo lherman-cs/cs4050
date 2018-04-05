@@ -4,6 +4,8 @@
 #include <unordered_map>
 #include <vector>
 
+enum class Axis { x, y };
+
 struct Vertex {
   double x, y, z;
 };
@@ -36,6 +38,8 @@ Vertex get_min(std::vector<Vertex> &vertices);
 void normalize(std::vector<Vertex> &vertices, double height, double width,
                double scale);
 void move(std::vector<Vertex> &vertices, const Vertex &to);
+void scale(std::vector<Vertex> &vertices, double factor);
+void rotate(std::vector<Vertex> &vertices, Axis axis, double degree);
 
 // Filling polygons
 struct EdgeInfo {

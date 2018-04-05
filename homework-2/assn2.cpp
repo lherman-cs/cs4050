@@ -38,11 +38,16 @@
 
 #include "utils.hpp"
 
-#define WIDTH 500
-#define HEIGHT 500
+#define WIDTH 1000
+#define HEIGHT 1000
 #define SCALE 0.8
 #define MIN_INTENSITY 0.3
 #define MAX_INTENSITY 1.0
+#define TRANSLATION_MODE 1
+#define ROTATION_MODE 2
+#define SCALE_MODE 4
+#define SCALE_RELATIVE_FACTOR 0.01
+#define ROTATE_RELATIVE_DEGREE 0.1
 
 int x_last, y_last;
 Model model;
@@ -53,6 +58,7 @@ void display(void);
 void wire_frame(void);
 void z_buffer(void);
 void toggle_perspective(bool z_buffer_mode);
+void refresh(bool z_buffer_mode);
 void draw_line(int x1, int y1, int x2, int y2);
 
 // Your functions
@@ -74,7 +80,7 @@ using the escape key.						  */
 
   glutInit(&argc, argv);
   glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
-  glutInitWindowSize(500, 500);
+  glutInitWindowSize(HEIGHT, WIDTH);
   glutCreateWindow("Computer Graphics");
   glutDisplayFunc(display);
   glutIdleFunc(display);
@@ -115,7 +121,9 @@ void wire_frame(void) {
 void z_buffer(void) {
   static double depth_buffer[HEIGHT][WIDTH];
   // Initialize depth_buffer to zero
-  memset(depth_buffer, 0, sizeof(double) * HEIGHT * WIDTH);
+  std::fill((double *)depth_buffer,
+            (double *)depth_buffer + sizeof(depth_buffer) / sizeof(double),
+            -INFINITY);
 
   double color = MIN_INTENSITY,
          color_inc = (MAX_INTENSITY - MIN_INTENSITY) / model.faces.size();
@@ -224,6 +232,70 @@ void toggle_perspective(bool z_buffer_mode) {
   glutSwapBuffers();
 }
 
+void interactive_handler(bool z_buffer_mode, unsigned char mode,
+                         unsigned char key) {
+  Vertex avg = get_avg(model.vertices);
+  switch (mode) {
+    case TRANSLATION_MODE:
+      switch (key) {
+        case 'a':
+          avg.x--;
+          break;
+        case 'w':
+          avg.y++;
+          break;
+        case 's':
+          avg.y--;
+          break;
+        case 'd':
+          avg.x++;
+          break;
+      }
+      move(model.vertices, avg);
+      break;
+    case ROTATION_MODE:
+      switch (key) {
+        case 'a':
+          rotate(model.vertices, Axis::y, -ROTATE_RELATIVE_DEGREE);
+          break;
+        case 'd':
+          rotate(model.vertices, Axis::y, ROTATE_RELATIVE_DEGREE);
+          break;
+        case 'w':
+          rotate(model.vertices, Axis::x, ROTATE_RELATIVE_DEGREE);
+          break;
+        case 's':
+          rotate(model.vertices, Axis::x, -ROTATE_RELATIVE_DEGREE);
+          break;
+      }
+      break;
+    case SCALE_MODE:
+      switch (key) {
+        case 'a':
+        case 'd':
+          scale(model.vertices, 1 + SCALE_RELATIVE_FACTOR);
+          break;
+        case 'w':
+        case 's':
+          scale(model.vertices, 1 - SCALE_RELATIVE_FACTOR);
+          break;
+      }
+  }
+  refresh(z_buffer_mode);
+}
+
+void refresh(bool z_buffer_mode) {
+  void (*fn)();
+  if (z_buffer_mode)
+    fn = z_buffer;
+  else
+    fn = wire_frame;
+
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  fn();
+  glutSwapBuffers();
+}
+
 void draw_line(int x_, int y_, int x, int y) {
   int dx = x - x_;
   int dy = y - y_;
@@ -290,6 +362,7 @@ start a line or curve where the last one ended */
 /***************************************************************************/
 void keyboard(unsigned char key, int x, int y)  // Create Keyboard Function
 {
+  static unsigned char mode = 0;
   static bool z_buffer_mode = false;
   switch (key) {
     case 27:    // When Escape Is Pressed...
@@ -312,6 +385,21 @@ void keyboard(unsigned char key, int x, int y)  // Create Keyboard Function
       break;
     case 'v':
       toggle_perspective(z_buffer_mode);
+      break;
+    case 't':
+      mode = TRANSLATION_MODE;
+      break;
+    case 'r':
+      mode = ROTATION_MODE;
+      break;
+    case 'e':
+      mode = SCALE_MODE;
+      break;
+    case 'a':
+    case 'w':
+    case 's':
+    case 'd':
+      interactive_handler(z_buffer_mode, mode, key);
       break;
     default:
       break;

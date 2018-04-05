@@ -89,17 +89,13 @@ void read_model(const char *model_file, Model *model) {
 // containing the average for every axis
 Vertex get_avg(std::vector<Vertex> &vertices) {
   Vertex v;
+  double n = 0;
   for (const auto &vertex : vertices) {
-    v.x += vertex.x;
     n++;
     v.x += (vertex.x - v.x) / n;
     v.y += (vertex.y - v.y) / n;
     v.z += (vertex.z - v.z) / n;
-
-  v.x /= vertices.size();
-  v.y /= vertices.size();
-  v.z /= vertices.size();
-
+  }
   return v;
 }
 
@@ -146,8 +142,7 @@ void normalize(std::vector<Vertex> &vertices, double height, double width,
   auto normalize_fn = [&max, &min, scale](Vertex &v) {
     v.x *= scale;
     v.y *= scale;
-    // normalize to be between [0, 1]
-    v.z = (v.z - min.z) / (max.z - min.z);
+    v.z *= scale;
   };
   std::for_each(vertices.begin(), vertices.end(), normalize_fn);
 
@@ -166,6 +161,48 @@ void move(std::vector<Vertex> &vertices, const Vertex &to) {
     v.z = v.z - avg.z + to.z;
   };
   std::for_each(vertices.begin(), vertices.end(), move_fn);
+}
+
+// Scale all vertices by given factor
+void scale(std::vector<Vertex> &vertices, double factor) {
+  Vertex avg = get_avg(vertices);
+
+  auto scale_fn = [&avg, factor](Vertex &v) {
+    v.x = (v.x - avg.x) * factor + avg.x;
+    v.y = (v.y - avg.y) * factor + avg.y;
+    v.z = (v.z - avg.z) * factor + avg.z;
+  };
+  std::for_each(vertices.begin(), vertices.end(), scale_fn);
+}
+
+void rotate(std::vector<Vertex> &vertices, Axis axis, double degree) {
+  Vertex avg = get_avg(vertices);
+
+  auto rotate_x_fn = [degree](Vertex &v) {
+    const double y = v.y, z = v.z;
+    v.y = y * std::cos(degree) - z * std::sin(degree);
+    v.z = y * std::sin(degree) + z * std::cos(degree);
+  };
+  auto rotate_y_fn = [degree](Vertex &v) {
+    const double x = v.x, z = v.z;
+    v.x = x * std::cos(degree) + z * std::sin(degree);
+    v.z = -x * std::sin(degree) + z * std::cos(degree);
+  };
+
+  // Move all vertices to the origin first
+  move(vertices, {0, 0, 0});
+
+  switch (axis) {
+    case Axis::x:
+      std::for_each(vertices.begin(), vertices.end(), rotate_x_fn);
+      break;
+    case Axis::y:
+      std::for_each(vertices.begin(), vertices.end(), rotate_y_fn);
+      break;
+  }
+
+  // Move all vertices back to where they were
+  move(vertices, avg);
 }
 
 /**
