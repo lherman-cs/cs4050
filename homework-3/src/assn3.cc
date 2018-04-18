@@ -114,16 +114,16 @@ void wire_frame(void) {
 void render() {
   Coordinate min = get_min(model->vertices), max = get_max(model->vertices),
              avg = get_avg(model->vertices);
-  move(model->vertices, {avg.x, avg.y, -50});
+  move(model->vertices, {avg.x, avg.y, -4});
 
   Coordinate eye = {WIDTH >> 1, HEIGHT >> 1, 0};
   Coordinate light = {0, HEIGHT, 0};
 
   for (int row = 0; row < HEIGHT; row++) {
     for (int col = 0; col < WIDTH; col++) {
-      Coordinate screen_pixel = Coordinate(col, row, -25);
+      Coordinate screen_pixel = Coordinate(col, row, -2);
       Coordinate direction = (screen_pixel - eye).normalize();
-      Coordinate intersected_point;
+      Coordinate intersected_point = Coordinate();
       Triangle closest = Triangle();
       Color illumination = Color(1.0, 1.0, 1.0);
 
@@ -134,7 +134,18 @@ void render() {
       // Calculate Phong Shading
       if (intersected) {
         // std::cerr << "intersected\n";
-        illumination = Color(0.0, 0.0, 0.0);
+        Coordinate to_source = light - intersected_point;
+        Coordinate to_viewer = eye - intersected_point;
+
+        intersected = find_closest_intersection(model->faces, intersected_point,
+                                                to_source.normalize(), &closest,
+                                                &intersected_point);
+        illumination = get_ambient();
+
+        if (!intersected)
+          illumination = illumination +
+                         get_diffuse(to_source, closest.normal()) +
+                         get_specular(to_source, closest.normal(), to_viewer);
       }
       write_pixel(col, row, illumination);
     }
