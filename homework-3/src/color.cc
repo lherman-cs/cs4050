@@ -33,51 +33,51 @@ Color &Color::operator=(Color &&other) {
   return *this;
 }
 
-Color Color::operator+(const Color &other) {
+Color Color::operator+(const Color &other) const {
   return {red + other.red, green + other.green, blue + other.blue};
 }
 
-Color Color::operator+(const double scalar) {
+Color Color::operator+(const double scalar) const {
   return {red + scalar, green + scalar, blue + scalar};
 }
 
-Color Color::operator-(const Color &other) {
+Color Color::operator-(const Color &other) const {
   return {red - other.red, green - other.green, blue - other.blue};
 }
 
-Color Color::operator-() { return {-red, -green, -blue}; }
+Color Color::operator-() const { return {-red, -green, -blue}; }
 
-Color Color::operator-(const double scalar) {
+Color Color::operator-(const double scalar) const {
   return {red - scalar, green - scalar, blue - scalar};
 }
 
-Color Color::operator*(const Color &other) {
+Color Color::operator*(const Color &other) const {
   return {red * other.red, green * other.green, blue * other.blue};
 }
 
-Color Color::operator*(const double scalar) {
+Color Color::operator*(const double scalar) const {
   return {red * scalar, green * scalar, blue * scalar};
 }
 
-Color Color::operator/(const Color &other) {
+Color Color::operator/(const Color &other) const {
   return {red / other.red, green / other.green, blue / other.blue};
 }
 
-Color Color::operator/(const double scalar) {
+Color Color::operator/(const double scalar) const {
   return {red / scalar, green / scalar, blue / scalar};
 }
 
-double Color::dot(const Color &other) {
+double Color::dot(const Color &other) const {
   return red * other.red + green * other.green + blue * other.blue;
 }
 
-Color Color::cross(const Color &other) {
+Color Color::cross(const Color &other) const {
   return Color(green * other.blue - blue * other.green,
                blue * other.red - red * other.blue,
                red * other.green - green * other.red);
 }
 
-Color Color::normalize() {
+Color Color::normalize() const {
   double distance = std::pow(red, 2) + std::pow(green, 2) + std::pow(blue, 2);
   distance = std::sqrt(distance);
 

@@ -10,19 +10,19 @@ class Color {
   Color(Color &&other);
   Color &operator=(const Color &other);
   Color &operator=(Color &&other);
-  Color operator+(const Color &other);
-  Color operator+(const double scalar);
-  Color operator-(const Color &other);
-  Color operator-();
-  Color operator-(const double scalar);
-  Color operator*(const Color &other);
-  Color operator*(const double scalar);
-  Color operator/(const Color &other);
-  Color operator/(const double scalar);
+  Color operator+(const Color &other) const;
+  Color operator+(const double scalar) const;
+  Color operator-(const Color &other) const;
+  Color operator-() const;
+  Color operator-(const double scalar) const;
+  Color operator*(const Color &other) const;
+  Color operator*(const double scalar) const;
+  Color operator/(const Color &other) const;
+  Color operator/(const double scalar) const;
 
-  double dot(const Color &other);
-  Color cross(const Color &other);
-  Color normalize();
+  double dot(const Color &other) const;
+  Color cross(const Color &other) const;
+  Color normalize() const;
 };
 
 #endif

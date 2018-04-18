@@ -134,8 +134,9 @@ void rotate(std::vector<Coordinate> &vertices, Axis axis, double degree) {
 //  closests: in place return the closest triangle
 //  intersected_point: in place return the closest intersected point
 //  a bool if there is an intersection or not
-bool find_closest_intersection(const std::vector<Face> &faces, Coordinate &eye,
-                               Coordinate &direction, Triangle *closest,
+bool find_closest_intersection(const std::vector<Face> &faces,
+                               const Coordinate &eye,
+                               const Coordinate &direction, Triangle *closest,
                                Coordinate *intersected_point) {
   double closest_z = Triangle::NOT_INTERSECTED;
   bool intersected = false;
@@ -167,16 +168,16 @@ bool find_closest_intersection(const std::vector<Face> &faces, Coordinate &eye,
 // Returns:
 //  diffuse contribution to the illumination in rgb
 Color get_diffuse(const Coordinate &to_source, const Coordinate &normal) {
-  Color k(0.0, 0.0, 0.4);
-  Color l(1.0, 1.0, 1.0);
+  Color k(0.61424, 0.04136, 0.04136);
+  Color l(0.8, 0.8, 0.8);
 
   return k * l * to_source.dot(normal);
 }
 
 Color get_specular(const Coordinate &to_source, const Coordinate &normal,
                    const Coordinate &to_viewer) {
-  Color k(0.0, 0.0, 0.5);
-  Color l(1.0, 1.0, 1.0);
+  Color k(0.727811, 0.626959, 0.626959);
+  Color l(0, 0, 0);
   double alpha = 5.0;
 
   Coordinate r = -to_source - normal * 2.0 * ((-to_source).dot(normal));
@@ -184,8 +185,8 @@ Color get_specular(const Coordinate &to_source, const Coordinate &normal,
 }
 
 Color get_ambient() {
-  Color k(0.0, 0.0, 0.3);
-  Color l(1.0, 1.0, 1.0);
+  Color k(0.1745, 0.01175, 0.01175);
+  Color l(0.2, 0.2, 0.2);
 
   return k * l;
 }

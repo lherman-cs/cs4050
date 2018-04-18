@@ -1,7 +1,7 @@
 #include "triangle.hpp"
 #include <limits>
 
-double det(Coordinate coords[3]) {
+double det(const Coordinate coords[3]) {
   return coords[0].x * (coords[1].y * coords[2].z - coords[1].z * coords[2].y) -
          coords[1].x * (coords[0].y * coords[2].z - coords[0].z * coords[2].y) +
          coords[2].x * (coords[0].y * coords[1].z - coords[0].z * coords[1].y);
@@ -17,7 +17,8 @@ Triangle::Triangle() : vertices{NULL, NULL, NULL} {}
 
 // Return t parameter if it intersects
 // Else return infinity
-double Triangle::intersects(Coordinate &eye, Coordinate &direction) {
+double Triangle::intersects(const Coordinate &eye,
+                            const Coordinate &direction) const {
   Coordinate &a = *this->vertices[0];
   Coordinate &b = *this->vertices[1];
   Coordinate &c = *this->vertices[2];
@@ -38,12 +39,12 @@ double Triangle::intersects(Coordinate &eye, Coordinate &direction) {
   return NOT_INTERSECTED;
 }
 
-bool Triangle::is_empty() {
+bool Triangle::is_empty() const {
   return vertices[0] == NULL && vertices[1] == NULL && vertices[2] == NULL;
 }
 
 // Get a normalized normal from a triangle
-Coordinate Triangle::normal() {
+Coordinate Triangle::normal() const {
   Coordinate &p1 = *this->vertices[0];
   Coordinate &p2 = *this->vertices[1];
   Coordinate &p3 = *this->vertices[2];
