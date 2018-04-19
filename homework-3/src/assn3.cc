@@ -112,13 +112,13 @@ void wire_frame(void) {
 }
 
 void render() {
+  static const Coordinate eye = {WIDTH >> 1, HEIGHT >> 1, 0};
+  static const Coordinate light = {0, HEIGHT, 0};
+  static const Color background = Color(1.0);
+  static const Color ambient = get_ambient();
+
   Coordinate avg = get_avg(model->vertices);
   move(model->vertices, {WIDTH >> 1, HEIGHT >> 1, -2 * avg.z});
-
-  Coordinate eye = {WIDTH >> 1, HEIGHT >> 1, 0};
-  Coordinate light = {0, HEIGHT, 0};
-  Color background = Color(1.0);
-  Color ambient = get_ambient();
 
   for (int row = 0; row < HEIGHT; row++) {
     for (int col = 0; col < WIDTH; col++) {
@@ -134,7 +134,6 @@ void render() {
       // Calculate Phong Shading
       if (intersected) {
         Color illumination = ambient;
-
         Coordinate to_source = (light - intersected_point).normalize();
         Coordinate to_viewer = (eye - intersected_point).normalize();
         Coordinate normal = closest.normal();
