@@ -40,8 +40,8 @@
 #include "model.hpp"
 #include "utils.hpp"
 
-#define WIDTH 400
-#define HEIGHT 400
+#define WIDTH 800
+#define HEIGHT 800
 #define SCALE 0.8
 
 int x_last, y_last;
@@ -139,17 +139,14 @@ void render() {
         Coordinate to_viewer = (eye - intersected_point).normalize();
         Coordinate normal = closest.normal();
         Coordinate shadow_ray_eye = intersected_point;
+        Coordinate shadow_ray_direction = (light - shadow_ray_eye).normalize();
 
-        // std::cerr << shadow_ray_eye.x << ',' << shadow_ray_eye.y << ','
-        //           << shadow_ray_eye.z << '\n';
+        intersected = is_shadowed(model->faces, shadow_ray_eye,
+                                  shadow_ray_direction, closest);
 
-        intersected = find_closest_intersection(
-            model->faces, shadow_ray_eye, (light - shadow_ray_eye).normalize(),
-            &closest, &intersected_point);
-
-        // if (!intersected)
-        illumination = illumination + get_diffuse(to_source, normal) +
-                       get_specular(to_source, normal, to_viewer);
+        if (!intersected)
+          illumination = illumination + get_diffuse(to_source, normal) +
+                         get_specular(to_source, normal, to_viewer);
 
         write_pixel(col, row, illumination);
       } else

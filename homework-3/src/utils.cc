@@ -139,6 +139,22 @@ bool find_closest_intersection(const std::vector<Face> &faces,
   return intersected;
 }
 
+bool is_shadowed(const std::vector<Face> &faces, const Coordinate &eye,
+                 const Coordinate &direction, const Triangle &surface) {
+  for (Face face : faces) {
+    Triangle tri(face);
+    if (tri != surface) {
+      double t = tri.intersects(eye, direction);
+
+      if (t != Triangle::NOT_INTERSECTED) {
+        Coordinate p = Coordinate(eye + direction * t);
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
 // Calculate diffuse illumination using phong shading
 // Parameters:
 //  to_source: a normalized vector from a point on a surface to the light
@@ -156,7 +172,7 @@ Color get_diffuse(const Coordinate &to_source, const Coordinate &normal) {
 Color get_specular(const Coordinate &to_source, const Coordinate &normal,
                    const Coordinate &to_viewer) {
   Color k(0.727811, 0.626959, 0.626959);
-  Color l(0.6, 0.6, 0.6);
+  Color l(1.0, 1.0, 1.0);
   double alpha = 0.6;
 
   Coordinate r = -to_source - normal * 2.0 * ((-to_source).dot(normal));

@@ -14,6 +14,8 @@ class Triangle {
   Triangle(Coordinate *a, Coordinate *b, Coordinate *c);
   Triangle(Face &face);
   Triangle();
+  bool operator==(const Triangle &other) const;
+  bool operator!=(const Triangle &other) const;
   double intersects(const Coordinate &eye, const Coordinate &direction) const;
   bool is_empty() const;
   Coordinate normal() const;

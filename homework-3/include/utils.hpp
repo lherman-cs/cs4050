@@ -25,6 +25,8 @@ bool find_closest_intersection(const std::vector<Face> &faces,
                                const Coordinate &eye,
                                const Coordinate &direction, Triangle *closest,
                                Coordinate *intersected_point);
+bool is_shadowed(const std::vector<Face> &faces, const Coordinate &eye,
+                 const Coordinate &direction, const Triangle &surface);
 
 Color get_diffuse(const Coordinate &to_source, const Coordinate &normal);
 Color get_specular(const Coordinate &to_source, const Coordinate &normal,

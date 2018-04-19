@@ -15,6 +15,15 @@ Triangle::Triangle(Face &face)
 
 Triangle::Triangle() : vertices{NULL, NULL, NULL} {}
 
+bool Triangle::operator==(const Triangle &other) const {
+  return vertices[0] == other.vertices[0] && vertices[1] == other.vertices[1] &&
+         vertices[2] == other.vertices[2];
+}
+
+bool Triangle::operator!=(const Triangle &other) const {
+  return !(*this == other);
+}
+
 // Return t parameter if it intersects
 // Else return infinity
 double Triangle::intersects(const Coordinate &eye,
