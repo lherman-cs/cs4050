@@ -60,7 +60,6 @@ void normalize(std::vector<Coordinate> &vertices, double height, double width,
   scale *= std::min(width, height);
   auto normalize_fn = [&max, &min, scale](Coordinate &v) {
     v = (v - min) / (max - min) * scale;
-    v.z /= scale;
   };
   std::for_each(vertices.begin(), vertices.end(), normalize_fn);
 
@@ -143,12 +142,9 @@ bool find_closest_intersection(const std::vector<Face> &faces,
   for (Face face : faces) {
     Triangle tri(face);
     double t = tri.intersects(eye, direction);
-    // std::cerr << t << '\n';
 
     if (t != Triangle::NOT_INTERSECTED) {
-      Coordinate p(eye + direction * t);
-      // std::cerr << p.z << '\n';
-
+      Coordinate p = Coordinate(eye + direction * t);
       if (p.z > closest_z) {
         closest_z = p.z;
         *closest = tri;
@@ -177,10 +173,12 @@ Color get_diffuse(const Coordinate &to_source, const Coordinate &normal) {
 Color get_specular(const Coordinate &to_source, const Coordinate &normal,
                    const Coordinate &to_viewer) {
   Color k(0.727811, 0.626959, 0.626959);
-  Color l(0, 0, 0);
-  double alpha = 5.0;
+  Color l(0.6, 0.6, 0.6);
+  double alpha = 0.6;
 
   Coordinate r = -to_source - normal * 2.0 * ((-to_source).dot(normal));
+  double dot = to_viewer.dot(r);
+  if (dot <= 0) return 0;
   return k * l * std::pow(to_viewer.dot(r), alpha);
 }
 

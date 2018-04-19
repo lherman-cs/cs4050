@@ -112,20 +112,20 @@ void wire_frame(void) {
 }
 
 void render() {
-  Coordinate min = get_min(model->vertices), max = get_max(model->vertices),
-             avg = get_avg(model->vertices);
-  move(model->vertices, {avg.x, avg.y, -4});
+  Coordinate avg = get_avg(model->vertices);
+  move(model->vertices, {WIDTH >> 1, HEIGHT >> 1, -2 * avg.z});
 
   Coordinate eye = {WIDTH >> 1, HEIGHT >> 1, 0};
   Coordinate light = {0, HEIGHT, 0};
+  Color background = Color(1.0);
+  Color ambient = get_ambient();
 
   for (int row = 0; row < HEIGHT; row++) {
     for (int col = 0; col < WIDTH; col++) {
-      Coordinate screen_pixel = Coordinate(col, row, -2);
+      Coordinate screen_pixel = Coordinate(col, row, -avg.z);
       Coordinate direction = (screen_pixel - eye).normalize();
       Coordinate intersected_point = Coordinate();
       Triangle closest = Triangle();
-      Color illumination = Color(1.0, 1.0, 1.0);
 
       // Determine the closest intersected triangle
       bool intersected = find_closest_intersection(
@@ -133,21 +133,27 @@ void render() {
 
       // Calculate Phong Shading
       if (intersected) {
-        // std::cerr << "intersected\n";
-        Coordinate to_source = light - intersected_point;
-        Coordinate to_viewer = eye - intersected_point;
+        Color illumination = ambient;
 
-        intersected = find_closest_intersection(model->faces, intersected_point,
-                                                to_source.normalize(), &closest,
-                                                &intersected_point);
-        illumination = get_ambient();
+        Coordinate to_source = (light - intersected_point).normalize();
+        Coordinate to_viewer = (eye - intersected_point).normalize();
+        Coordinate normal = closest.normal();
+        Coordinate shadow_ray_eye = intersected_point;
 
-        if (!intersected)
-          illumination = illumination +
-                         get_diffuse(to_source, closest.normal()) +
-                         get_specular(to_source, closest.normal(), to_viewer);
-      }
-      write_pixel(col, row, illumination);
+        // std::cerr << shadow_ray_eye.x << ',' << shadow_ray_eye.y << ','
+        //           << shadow_ray_eye.z << '\n';
+
+        intersected = find_closest_intersection(
+            model->faces, shadow_ray_eye, (light - shadow_ray_eye).normalize(),
+            &closest, &intersected_point);
+
+        // if (!intersected)
+        illumination = illumination + get_diffuse(to_source, normal) +
+                       get_specular(to_source, normal, to_viewer);
+
+        write_pixel(col, row, illumination);
+      } else
+        write_pixel(col, row, background);
     }
   }
 }
