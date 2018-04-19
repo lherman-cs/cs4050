@@ -11,9 +11,7 @@ Coordinate get_avg(std::vector<Coordinate> &vertices) {
   double n = 0;
   for (const auto &vertex : vertices) {
     n++;
-    v.x += (vertex.x - v.x) / n;
-    v.y += (vertex.y - v.y) / n;
-    v.z += (vertex.z - v.z) / n;
+    v = v + (vertex - v) / n;
   }
   return v;
 }
@@ -58,10 +56,7 @@ void normalize(std::vector<Coordinate> &vertices, double height, double width,
   // Normalize
   Coordinate max = get_max(vertices), min = get_min(vertices);
   scale *= std::min(width, height);
-  auto normalize_fn = [&max, &min, scale](Coordinate &v) {
-    v = (v - min) / (max - min) * scale;
-  };
-  std::for_each(vertices.begin(), vertices.end(), normalize_fn);
+  for (auto &v : vertices) v = (v - min) / (max - min) * scale;
 
   // Move to center
   Coordinate avg = get_avg(vertices);
@@ -71,25 +66,13 @@ void normalize(std::vector<Coordinate> &vertices, double height, double width,
 // Move to the given vertex as a center
 void move(std::vector<Coordinate> &vertices, const Coordinate &to) {
   Coordinate avg = get_avg(vertices);
-
-  auto move_fn = [&avg, &to](Coordinate &v) {
-    v.x = v.x - avg.x + to.x;
-    v.y = v.y - avg.y + to.y;
-    v.z = v.z - avg.z + to.z;
-  };
-  std::for_each(vertices.begin(), vertices.end(), move_fn);
+  for (auto &v : vertices) v = v - avg + to;
 }
 
 // Scale all vertices by given factor
 void scale(std::vector<Coordinate> &vertices, double factor) {
   Coordinate avg = get_avg(vertices);
-
-  auto scale_fn = [&avg, factor](Coordinate &v) {
-    v.x = (v.x - avg.x) * factor + avg.x;
-    v.y = (v.y - avg.y) * factor + avg.y;
-    v.z = (v.z - avg.z) * factor + avg.z;
-  };
-  std::for_each(vertices.begin(), vertices.end(), scale_fn);
+  for (auto &v : vertices) v = (v - avg) * factor + avg;
 }
 
 void rotate(std::vector<Coordinate> &vertices, Axis axis, double degree) {
