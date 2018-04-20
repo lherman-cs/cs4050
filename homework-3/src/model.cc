@@ -74,3 +74,41 @@ Model::Model(const Model &other) {
   this->textures = other.textures;
   this->vertices = other.vertices;
 }
+
+// is_ear is to check if a triangle that is made of it - 1, it, it + 1
+// is an ear or not.
+//
+// Parameters:
+//  vertices are a list of vertices in the polygon. NOT MODEL'S VERTICES.
+//  it is the current vertex iterator in the polygon
+//
+// Returns:
+//  true if it's an ear, else false
+bool Model::is_ear(const std::list<Coordinate *> &vertices,
+                   std::list<Coordinate *>::iterator it) const {
+  Coordinate &a = **it;
+  auto b_it = it;
+  auto c_it = it;
+
+  b_it--;
+  if (b_it == vertices.end()) b_it--;
+  Coordinate &b = **b_it;
+
+  c_it++;
+  if (c_it == vertices.end()) c_it++;
+  Coordinate &c = **c_it;
+
+  Triangle tri = Triangle(&a, &b, &c);
+  auto tmp = it;
+
+  // Check to the left
+  for (--it; it != vertices.end(); it--)
+    if (tri.is_in(**it)) return false;
+
+  it = tmp;
+  // Check to the right
+  for (++it; it != vertices.end(); it++)
+    if (tri.is_in(**it)) return false;
+
+  return true;
+}

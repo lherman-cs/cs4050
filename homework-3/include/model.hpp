@@ -1,6 +1,7 @@
 #ifndef MODEL_HPP
 #define MODEL_HPP
 
+#include <list>
 #include <sstream>
 #include <vector>
 #include "coordinate.hpp"
@@ -22,6 +23,10 @@ class Model {
   void read_normal(std::istringstream &sin);
   void read_texture(std::istringstream &sin);
   void read_vertex(std::istringstream &sin);
+
+  // Helpers
+  bool is_ear(const std::list<Coordinate *> &vertices,
+              std::list<Coordinate *>::iterator) const;
 };
 
 #endif
