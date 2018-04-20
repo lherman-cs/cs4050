@@ -10,10 +10,7 @@ double det(const Coordinate coords[3]) {
 Triangle::Triangle(Coordinate *a, Coordinate *b, Coordinate *c)
     : vertices{a, b, c} {}
 
-Triangle::Triangle(Face &face)
-    : vertices{face[0].vertex, face[1].vertex, face[2].vertex} {}
-
-Triangle::Triangle() : vertices{NULL, NULL, NULL} {}
+Triangle::Triangle() : vertices{nullptr, nullptr, nullptr} {}
 
 bool Triangle::operator==(const Triangle &other) const {
   return vertices[0] == other.vertices[0] && vertices[1] == other.vertices[1] &&
@@ -49,7 +46,8 @@ double Triangle::intersects(const Coordinate &eye,
 }
 
 bool Triangle::is_empty() const {
-  return vertices[0] == NULL && vertices[1] == NULL && vertices[2] == NULL;
+  return vertices[0] == nullptr && vertices[1] == nullptr &&
+         vertices[2] == nullptr;
 }
 
 // Get a normalized normal from a triangle

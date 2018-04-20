@@ -50,8 +50,6 @@ Model *model;
 // My functions
 void init_display(const char *model_path);
 void display(void);
-void draw_line(int x_, int y_, int x, int y);
-void wire_frame();
 void render();
 
 // Your functions
@@ -97,20 +95,6 @@ void init_display(const char *model_path) {
   glutSwapBuffers();
 }
 
-void wire_frame(void) {
-  const std::vector<Face> &faces = model->faces;
-
-  for (const Face &face : faces) {
-    for (unsigned i = 0; i < face.size(); i++) {
-      const Coordinate &before = *face[i].vertex;
-      const Coordinate &after = *face[(i + 1) % face.size()].vertex;
-      draw_line(before.x, before.y, after.x, after.y);
-      std::cerr << before.x << ',' << before.y << ',' << before.z << '\n';
-    }
-    std::cerr << "===================================\n";
-  }
-}
-
 void render() {
   static const Coordinate eye = {WIDTH >> 1, HEIGHT >> 1, 0};
   static const Coordinate light = {0, HEIGHT, 0};
@@ -129,7 +113,7 @@ void render() {
 
       // Determine the closest intersected triangle
       bool intersected = find_closest_intersection(
-          model->faces, eye, direction, &closest, &intersected_point);
+          model->triangles, eye, direction, &closest, &intersected_point);
 
       // Calculate Phong Shading
       if (intersected) {
@@ -140,7 +124,7 @@ void render() {
         Coordinate shadow_ray_eye = intersected_point;
         Coordinate shadow_ray_direction = (light - shadow_ray_eye).normalize();
 
-        intersected = is_shadowed(model->faces, shadow_ray_eye,
+        intersected = is_shadowed(model->triangles, shadow_ray_eye,
                                   shadow_ray_direction, closest);
 
         if (!intersected)
@@ -155,24 +139,6 @@ void render() {
 }
 
 void display(void) {}
-
-void draw_line(int x_, int y_, int x, int y) {
-  int dx = x - x_;
-  int dy = y - y_;
-  int steps = abs(dy) > abs(dx) ? abs(dy) : abs(dx);
-
-  double x_plot = x_, y_plot = y_;
-  double x_step = (double)dx / steps, y_step = (double)dy / steps;
-
-  write_pixel(x_, y_, Color(1.0));
-
-  for (int i = 0; i < steps; i++) {
-    x_plot += x_step;
-    y_plot += y_step;
-
-    write_pixel((int)round(x_plot), (int)round(y_plot), Color(1.0));
-  }
-}
 
 /***************************************************************************/
 

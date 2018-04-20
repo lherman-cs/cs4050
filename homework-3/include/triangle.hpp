@@ -4,7 +4,6 @@
 #include <float.h>
 #include <limits.h>
 #include "coordinate.hpp"
-#include "face.hpp"
 
 class Triangle {
  public:
@@ -12,7 +11,6 @@ class Triangle {
   Coordinate *vertices[3];
 
   Triangle(Coordinate *a, Coordinate *b, Coordinate *c);
-  Triangle(Face &face);
   Triangle();
   bool operator==(const Triangle &other) const;
   bool operator!=(const Triangle &other) const;

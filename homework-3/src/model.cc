@@ -26,35 +26,21 @@ void Model::read_normal(std::istringstream &sin) {
   this->normals.push_back(normal);
 }
 
-// Helper to read face
-void Model::read_face(std::istringstream &sin) {
-  Face face;
+// Helper to read triangle
+void Model::read_triangle(std::istringstream &sin) {
+  Triangle tri;
   std::string group;
   std::string el;
 
+  int i = 0;
   while (sin >> group) {
     std::istringstream sin_el(group);
-    int i = 0;
-    FaceElement face_el;
-    memset(&face_el, 0, sizeof(face_el));
 
-    while (std::getline(sin_el, el, '/')) {
-      switch (i) {
-        case 0:  // Vertex
-          face_el.vertex = &this->vertices[std::stoi(el) - 1];
-          break;
-        case 1:  // Texture
-          face_el.texture = &this->textures[std::stoi(el) - 1];
-          break;
-        case 2:  // Normal
-          face_el.normal = &this->normals[std::stoi(el) - 1];
-          break;
-      }
-      i++;
-    }
-    face.push_back(face_el);
+    std::getline(sin_el, el, '/');
+    tri.vertices[i] = &this->vertices[std::stoi(el) - 1];
+    i++;
   }
-  this->faces.push_back(face);
+  this->triangles.push_back(tri);
 }
 
 // Read model_file and parse it
@@ -74,7 +60,7 @@ Model::Model(const char *model_file) {
     else if (type == "vn")
       this->read_texture(sin);
     else if (type == "f")
-      this->read_face(sin);
+      this->read_triangle(sin);
     else
       continue;
   }
@@ -83,7 +69,7 @@ Model::Model(const char *model_file) {
 }
 
 Model::Model(const Model &other) {
-  this->faces = other.faces;
+  this->triangles = other.triangles;
   this->normals = other.normals;
   this->textures = other.textures;
   this->vertices = other.vertices;

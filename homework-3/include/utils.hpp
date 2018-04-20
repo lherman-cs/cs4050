@@ -5,9 +5,7 @@
 #include <vector>
 #include "color.hpp"
 #include "coordinate.hpp"
-#include "face.hpp"
 #include "model.hpp"
-#include "texture.hpp"
 #include "triangle.hpp"
 
 enum class Axis { x, y };
@@ -21,11 +19,11 @@ void move(std::vector<Coordinate> &vertices, const Coordinate &to);
 void scale(std::vector<Coordinate> &vertices, double factor);
 void rotate(std::vector<Coordinate> &vertices, Axis axis, double degree);
 
-bool find_closest_intersection(const std::vector<Face> &faces,
+bool find_closest_intersection(const std::vector<Triangle> &triangles,
                                const Coordinate &eye,
                                const Coordinate &direction, Triangle *closest,
                                Coordinate *intersected_point);
-bool is_shadowed(const std::vector<Face> &faces, const Coordinate &eye,
+bool is_shadowed(const std::vector<Triangle> &triangles, const Coordinate &eye,
                  const Coordinate &direction, const Triangle &surface);
 
 Color get_diffuse(const Coordinate &to_source, const Coordinate &normal);

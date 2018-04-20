@@ -116,14 +116,13 @@ void rotate(std::vector<Coordinate> &vertices, Axis axis, double degree) {
 //  closests: in place return the closest triangle
 //  intersected_point: in place return the closest intersected point
 //  a bool if there is an intersection or not
-bool find_closest_intersection(const std::vector<Face> &faces,
+bool find_closest_intersection(const std::vector<Triangle> &triangles,
                                const Coordinate &eye,
                                const Coordinate &direction, Triangle *closest,
                                Coordinate *intersected_point) {
   double closest_z = Triangle::NOT_INTERSECTED;
   bool intersected = false;
-  for (Face face : faces) {
-    Triangle tri(face);
+  for (const Triangle &tri : triangles) {
     double t = tri.intersects(eye, direction);
 
     if (t != Triangle::NOT_INTERSECTED) {
@@ -139,10 +138,9 @@ bool find_closest_intersection(const std::vector<Face> &faces,
   return intersected;
 }
 
-bool is_shadowed(const std::vector<Face> &faces, const Coordinate &eye,
+bool is_shadowed(const std::vector<Triangle> &triangles, const Coordinate &eye,
                  const Coordinate &direction, const Triangle &surface) {
-  for (Face face : faces) {
-    Triangle tri(face);
+  for (const Triangle &tri : triangles) {
     if (tri != surface) {
       double t = tri.intersects(eye, direction);
 
