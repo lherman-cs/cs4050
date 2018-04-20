@@ -20,6 +20,7 @@ class Model {
 
  private:
   void read_triangle(std::istringstream &sin);
+  void read_triangle_(std::list<Coordinate *> &vertices);
   void read_normal(std::istringstream &sin);
   void read_texture(std::istringstream &sin);
   void read_vertex(std::istringstream &sin);

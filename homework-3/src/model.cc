@@ -32,15 +32,47 @@ void Model::read_triangle(std::istringstream &sin) {
   std::string group;
   std::string el;
 
-  int i = 0;
+  std::list<Coordinate *> vertices;
+
   while (sin >> group) {
     std::istringstream sin_el(group);
 
     std::getline(sin_el, el, '/');
-    tri.vertices[i] = &this->vertices[std::stoi(el) - 1];
-    i++;
+    vertices.push_back(&this->vertices[std::stoi(el) - 1]);
   }
-  this->triangles.push_back(tri);
+
+  read_triangle_(vertices);
+}
+
+// read_triangle_ is a helper for read_triangle which helps
+// in doing triangle remesh if the number of polygon's sides
+// is more than 3. This helper will also store all the triangles
+// into this.vertices.
+//
+// Parameters:
+//  vertices are polygon's vertices
+void Model::read_triangle_(std::list<Coordinate *> &vertices) {
+  auto it = vertices.begin();
+  while (vertices.size() > 3) {
+    if (is_ear(vertices, it)) {
+      auto b_it = it, c_it = it;
+      b_it--;
+      c_it++;
+      if (b_it == vertices.end()) b_it--;
+      if (c_it == vertices.end()) c_it++;
+
+      this->triangles.push_back(Triangle(*it, *b_it, *c_it));
+      it = vertices.erase(it);
+      if (it == vertices.end()) it++;
+    }
+  }
+
+  it = vertices.begin();
+  auto b_it = it, c_it = it;
+  b_it++;
+  c_it++;
+  c_it++;
+  this->triangles.push_back(Triangle(*it, *b_it, *c_it));
 }
 
 // Read model_file and parse it
