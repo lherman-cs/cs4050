@@ -45,6 +45,30 @@ double Triangle::intersects(const Coordinate &eye,
   return NOT_INTERSECTED;
 }
 
+// is_in determines if p is in the triangle
+// Parameters:
+//  p is a coordinate to be tested
+// Returns:
+//  true if p is in the triangle, else false
+//
+// Equation (see slide ch. 15 on page 19):
+//  p = a + beta(b - a) + gamma(c - a)
+bool Triangle::is_in(const Coordinate &p) const {
+  Coordinate &a = *this->vertices[0];
+  Coordinate &b = *this->vertices[1];
+  Coordinate &c = *this->vertices[2];
+
+  Coordinate eb = b - a;
+  Coordinate ec = c - a;
+
+  double gamma = eb.x * (p.y - a.y) - eb.y * (p.x - a.x);
+  gamma /= (ec.y * eb.x - eb.y * ec.x);
+
+  double beta = (p.x - a.x - gamma * ec.x) / eb.x;
+
+  return beta > 0 && gamma > 0 && beta + gamma < 1;
+}
+
 bool Triangle::is_empty() const {
   return vertices[0] == nullptr && vertices[1] == nullptr &&
          vertices[2] == nullptr;

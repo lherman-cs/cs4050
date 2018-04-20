@@ -15,6 +15,7 @@ class Triangle {
   bool operator==(const Triangle &other) const;
   bool operator!=(const Triangle &other) const;
   double intersects(const Coordinate &eye, const Coordinate &direction) const;
+  bool is_in(const Coordinate &point) const;
   bool is_empty() const;
   Coordinate normal() const;
 };
