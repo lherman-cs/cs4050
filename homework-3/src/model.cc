@@ -4,6 +4,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include "utils.hpp"
 
 // Helper to read vertex
 void Model::read_vertex(std::istringstream &sin) {
@@ -98,6 +99,8 @@ Model::Model(const char *model_file) {
   }
 
   fin.close();
+
+  normalize(this->vertices);
 }
 
 Model::Model(const Model &other) {

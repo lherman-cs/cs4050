@@ -87,26 +87,22 @@ using the escape key.						  */
 // My functions start here
 void init_display(const char *model_path) {
   model = new Model(model_path);
-  normalize(model->vertices, HEIGHT, WIDTH, SCALE);
   render();
-
-  // wire_frame();
-
   glutSwapBuffers();
 }
 
 void render() {
-  static const Coordinate eye = {WIDTH >> 1, HEIGHT >> 1, 0};
-  static const Coordinate light = {0, HEIGHT, 0};
+  static const Coordinate eye = {0.0, 0.0, 1.0};
+  static const Coordinate light = {0.0, 1.0, 1.0};
   static const Color background = Color(1.0);
   static const Color ambient = get_ambient();
 
-  Coordinate avg = get_avg(model->vertices);
-  move(model->vertices, {WIDTH >> 1, HEIGHT >> 1, -2 * avg.z});
-
   for (int row = 0; row < HEIGHT; row++) {
     for (int col = 0; col < WIDTH; col++) {
-      Coordinate screen_pixel = Coordinate(col, row, -avg.z);
+      double normalized_row = (double)row / (HEIGHT - 1) - 0.5;
+      double normalized_col = (double)col / (WIDTH - 1) - 0.5;
+
+      Coordinate screen_pixel = Coordinate(normalized_col, normalized_row, 0.7);
       Coordinate direction = (screen_pixel - eye).normalize();
       Coordinate intersected_point = Coordinate();
       Triangle closest = Triangle();

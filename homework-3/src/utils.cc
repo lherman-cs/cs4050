@@ -45,22 +45,13 @@ Coordinate get_min(std::vector<Coordinate> &vertices) {
 // Move all polygons to the origin and scale them so that
 // they fit into the screen. Then, move the polygons
 // to the middle of the screen
-void normalize(std::vector<Coordinate> &vertices, double height, double width,
-               double scale) {
-  int center_x = ((int)width) >> 1;
-  int center_y = ((int)height) >> 1;
-
-  // Move to origin
-  move(vertices, {0, 0, 0});
-
+void normalize(std::vector<Coordinate> &vertices) {
   // Normalize
   Coordinate max = get_max(vertices), min = get_min(vertices);
-  scale *= std::min(width, height);
-  for (auto &v : vertices) v = (v - min) / (max - min) * scale;
+  Coordinate mv = -(min + max) / 2.0;
+  Coordinate scl = max - min;
 
-  // Move to center
-  Coordinate avg = get_avg(vertices);
-  move(vertices, {(double)center_x, (double)center_y, avg.z});
+  for (auto &v : vertices) v = (v + mv) * 2.0 / scl;
 }
 
 // Move to the given vertex as a center
@@ -170,7 +161,7 @@ Color get_diffuse(const Coordinate &to_source, const Coordinate &normal) {
 Color get_specular(const Coordinate &to_source, const Coordinate &normal,
                    const Coordinate &to_viewer) {
   Color k(0.727811, 0.626959, 0.626959);
-  Color l(1.0, 1.0, 1.0);
+  Color l(0.7, 0.7, 0.7);
   double alpha = 0.6;
 
   Coordinate r = -to_source - normal * 2.0 * ((-to_source).dot(normal));
