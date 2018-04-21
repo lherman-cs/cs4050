@@ -93,7 +93,7 @@ void init_display(const char *model_path) {
 
 void render() {
   static const Coordinate eye = {0.0, 0.0, 1.0};
-  static const Coordinate light = {0.0, 1.0, 1.0};
+  static const Coordinate light = {0.0, 0.0, 1.0};
   static const Color background = Color(1.0);
   static const Color ambient = get_ambient();
 
