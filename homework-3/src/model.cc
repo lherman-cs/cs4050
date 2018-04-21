@@ -65,7 +65,8 @@ void Model::read_triangle_(std::list<Coordinate *> &vertices) {
       this->triangles.push_back(Triangle(*it, *b_it, *c_it));
       it = vertices.erase(it);
       if (it == vertices.end()) it++;
-    }
+    } else
+      it++;
   }
 
   it = vertices.begin();
