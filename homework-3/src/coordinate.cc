@@ -67,6 +67,11 @@ Coordinate Coordinate::operator/(const double scalar) const {
   return {x / scalar, y / scalar, z / scalar};
 }
 
+std::ostream &operator<<(std::ostream &stream, const Coordinate &c) {
+  stream << "x: " << c.x << " y: " << c.y << " z: " << c.z;
+  return stream;
+}
+
 double Coordinate::dot(const Coordinate &other) const {
   return x * other.x + y * other.y + z * other.z;
 }

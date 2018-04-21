@@ -3,6 +3,7 @@
 
 #include <float.h>
 #include <limits.h>
+#include <ostream>
 #include "coordinate.hpp"
 
 class Triangle {
@@ -14,6 +15,7 @@ class Triangle {
   Triangle();
   bool operator==(const Triangle &other) const;
   bool operator!=(const Triangle &other) const;
+  friend std::ostream &operator<<(std::ostream &stream, const Triangle &tri);
   double intersects(const Coordinate &eye, const Coordinate &direction) const;
   bool is_in(const Coordinate &point) const;
   bool is_empty() const;

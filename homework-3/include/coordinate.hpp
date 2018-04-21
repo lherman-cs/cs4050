@@ -1,6 +1,7 @@
 #ifndef COORDINATE_HPP
 #define COORDINATE_HPP
 
+#include <ostream>
 #include <utility>
 
 class Coordinate {
@@ -22,6 +23,7 @@ class Coordinate {
   Coordinate operator*(const double scalar) const;
   Coordinate operator/(const Coordinate &other) const;
   Coordinate operator/(const double scalar) const;
+  friend std::ostream &operator<<(std::ostream &stream, const Coordinate &c);
 
   double dot(const Coordinate &other) const;
   Coordinate cross(const Coordinate &other) const;

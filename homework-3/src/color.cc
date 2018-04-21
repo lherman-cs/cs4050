@@ -67,6 +67,11 @@ Color Color::operator/(const double scalar) const {
   return {red / scalar, green / scalar, blue / scalar};
 }
 
+std::ostream &operator<<(std::ostream &stream, const Color &c) {
+  stream << "red: " << c.red << " green: " << c.green << " blue: " << c.blue;
+  return stream;
+}
+
 double Color::dot(const Color &other) const {
   return red * other.red + green * other.green + blue * other.blue;
 }

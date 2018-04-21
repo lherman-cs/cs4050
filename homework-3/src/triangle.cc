@@ -21,6 +21,14 @@ bool Triangle::operator!=(const Triangle &other) const {
   return !(*this == other);
 }
 
+std::ostream &operator<<(std::ostream &stream, const Triangle &tri) {
+  stream << *tri.vertices[0] << '\n'
+         << *tri.vertices[1] << '\n'
+         << *tri.vertices[2] << '\n'
+         << "=================================================";
+  return stream;
+}
+
 // Return t parameter if it intersects
 // Else return infinity
 double Triangle::intersects(const Coordinate &eye,

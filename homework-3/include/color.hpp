@@ -1,6 +1,8 @@
 #ifndef COLOR_HPP
 #define COLOR_HPP
 
+#include <ostream>
+
 class Color {
  public:
   double red, green, blue;
@@ -19,6 +21,7 @@ class Color {
   Color operator*(const double scalar) const;
   Color operator/(const Color &other) const;
   Color operator/(const double scalar) const;
+  friend std::ostream &operator<<(std::ostream &stream, const Color &c);
 
   double dot(const Color &other) const;
   Color cross(const Color &other) const;
