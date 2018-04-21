@@ -71,7 +71,7 @@ using the escape key.						  */
 
   glutInit(&argc, argv);
   glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
-  glutInitWindowSize(HEIGHT, WIDTH);
+  glutInitWindowSize(WIDTH, HEIGHT);
   glutCreateWindow("Computer Graphics");
   glutDisplayFunc(display);
   glutIdleFunc(display);
