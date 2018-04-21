@@ -135,10 +135,7 @@ bool is_shadowed(const std::vector<Triangle> &triangles, const Coordinate &eye,
     if (tri != surface) {
       double t = tri.intersects(eye, direction);
 
-      if (t != Triangle::NOT_INTERSECTED) {
-        Coordinate p = Coordinate(eye + direction * t);
-        return true;
-      }
+      if (t != Triangle::NOT_INTERSECTED) return true;
     }
   }
   return false;
