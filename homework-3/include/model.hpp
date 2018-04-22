@@ -8,6 +8,8 @@
 #include "texture.hpp"
 #include "triangle.hpp"
 
+enum class Axis { x, y };
+
 class Model {
  public:
   std::vector<Coordinate> vertices;
@@ -24,6 +26,14 @@ class Model {
   void read_normal(std::istringstream &sin);
   void read_texture(std::istringstream &sin);
   void read_vertex(std::istringstream &sin);
+
+  Coordinate get_avg();
+  Coordinate get_max();
+  Coordinate get_min();
+  void normalize();
+  void move(const Coordinate &to);
+  void scale(double factor);
+  void rotate(Axis axis, double degree);
 
   // Helpers
   bool is_ear(const std::list<Coordinate *> &vertices,

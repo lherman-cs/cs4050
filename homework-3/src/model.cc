@@ -1,5 +1,9 @@
 #include "model.hpp"
+#include <float.h>
+#include <limits.h>
+#include <math.h>
 #include <string.h>
+#include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -101,7 +105,7 @@ Model::Model(const char *model_file) {
 
   fin.close();
 
-  normalize(this->vertices);
+  normalize();
 }
 
 Model::Model(const Model &other) {
@@ -109,6 +113,98 @@ Model::Model(const Model &other) {
   this->normals = other.normals;
   this->textures = other.textures;
   this->vertices = other.vertices;
+}
+
+// Get the average of vertices and return a vertex
+// containing the average for every axis
+Coordinate Model::get_avg() {
+  Coordinate v;
+  double n = 0;
+  for (const auto &vertex : vertices) {
+    n++;
+    v = v + (vertex - v) / n;
+  }
+  return v;
+}
+
+// Get the maximum of vertices and return a vertex
+// containing the maximum for every axis
+Coordinate Model::get_max() {
+  double min = std::numeric_limits<double>::min();
+  Coordinate v = {min, min, min};
+  for (const auto &vertex : vertices) {
+    v.x = vertex.x > v.x ? vertex.x : v.x;
+    v.y = vertex.y > v.y ? vertex.y : v.y;
+    v.z = vertex.z > v.z ? vertex.z : v.z;
+  }
+  return v;
+}
+
+// Get the minimum of vertices and return a vertex
+// containing the minimum for every axis
+Coordinate Model::get_min() {
+  double max = std::numeric_limits<double>::max();
+  Coordinate v = {max, max, max};
+  for (const auto &vertex : vertices) {
+    v.x = vertex.x < v.x ? vertex.x : v.x;
+    v.y = vertex.y < v.y ? vertex.y : v.y;
+    v.z = vertex.z < v.z ? vertex.z : v.z;
+  }
+  return v;
+}
+
+// Move all polygons to the origin and scale them so that
+// they fit into the screen. Then, move the polygons
+// to the middle of the screen
+void Model::normalize() {
+  // Normalize
+  Coordinate max = get_max(), min = get_min();
+  Coordinate mv = -(min + max) / 2.0;
+  Coordinate scl = max - min;
+
+  for (auto &v : vertices) v = (v + mv) * 2.0 / scl;
+}
+
+// Move to the given vertex as a center
+void Model::move(const Coordinate &to) {
+  Coordinate avg = get_avg();
+  for (auto &v : vertices) v = v - avg + to;
+}
+
+// Scale all vertices by given factor
+void Model::scale(double factor) {
+  Coordinate avg = get_avg();
+  for (auto &v : vertices) v = (v - avg) * factor + avg;
+}
+
+void Model::rotate(Axis axis, double degree) {
+  Coordinate avg = get_avg();
+
+  auto rotate_x_fn = [degree](Coordinate &v) {
+    const double y = v.y, z = v.z;
+    v.y = y * std::cos(degree) - z * std::sin(degree);
+    v.z = y * std::sin(degree) + z * std::cos(degree);
+  };
+  auto rotate_y_fn = [degree](Coordinate &v) {
+    const double x = v.x, z = v.z;
+    v.x = x * std::cos(degree) + z * std::sin(degree);
+    v.z = -x * std::sin(degree) + z * std::cos(degree);
+  };
+
+  // Move all vertices to the origin first
+  move({0, 0, 0});
+
+  switch (axis) {
+    case Axis::x:
+      std::for_each(vertices.begin(), vertices.end(), rotate_x_fn);
+      break;
+    case Axis::y:
+      std::for_each(vertices.begin(), vertices.end(), rotate_y_fn);
+      break;
+  }
+
+  // Move all vertices back to where they were
+  move(avg);
 }
 
 // is_ear is to check if a triangle that is made of it - 1, it, it + 1
