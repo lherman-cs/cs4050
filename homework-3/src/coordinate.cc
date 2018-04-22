@@ -81,9 +81,8 @@ Coordinate Coordinate::cross(const Coordinate &other) const {
                     x * other.y - y * other.x);
 }
 
-Coordinate Coordinate::normalize() const {
-  double distance = std::pow(x, 2) + std::pow(y, 2) + std::pow(z, 2);
-  distance = std::sqrt(distance);
+Coordinate Coordinate::normalize() const { return *this / dist(); }
 
-  return *this / distance;
+double Coordinate::dist() const {
+  return std::sqrt(std::pow(x, 2.0) + std::pow(y, 2.0) + std::pow(z, 2.0));
 }

@@ -3,6 +3,7 @@
 
 #include <list>
 #include <sstream>
+#include <unordered_map>
 #include <vector>
 #include "coordinate.hpp"
 #include "texture.hpp"
@@ -14,7 +15,7 @@ class Model {
  public:
   std::vector<Coordinate> vertices;
   std::vector<Texture> textures;
-  std::vector<Coordinate> normals;
+  std::unordered_map<Coordinate *, Coordinate> normals;
   std::vector<Triangle> triangles;
 
   Model(const char *model_file);
@@ -23,7 +24,6 @@ class Model {
  private:
   void read_triangle(std::istringstream &sin);
   void read_triangle_(std::list<Coordinate *> &vertices);
-  void read_normal(std::istringstream &sin);
   void read_texture(std::istringstream &sin);
   void read_vertex(std::istringstream &sin);
 
@@ -38,6 +38,7 @@ class Model {
   // Helpers
   bool is_ear(const std::list<Coordinate *> &vertices,
               std::list<Coordinate *>::iterator) const;
+  void compute_normals();
 };
 
 #endif

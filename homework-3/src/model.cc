@@ -8,6 +8,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <unordered_map>
 #include "utils.hpp"
 
 // Helper to read vertex
@@ -22,13 +23,6 @@ void Model::read_texture(std::istringstream &sin) {
   Texture texture;
   sin >> texture.u >> texture.v;
   this->textures.push_back(texture);
-}
-
-// Helper to read normal
-void Model::read_normal(std::istringstream &sin) {
-  Coordinate normal;
-  sin >> normal.x >> normal.y >> normal.z;
-  this->normals.push_back(normal);
 }
 
 // Helper to read triangle
@@ -95,8 +89,6 @@ Model::Model(const char *model_file) {
       this->read_vertex(sin);
     else if (type == "vt")
       this->read_texture(sin);
-    else if (type == "vn")
-      this->read_texture(sin);
     else if (type == "f")
       this->read_triangle(sin);
     else
@@ -106,6 +98,10 @@ Model::Model(const char *model_file) {
   fin.close();
 
   normalize();
+  compute_normals();
+  // for (Coordinate &v : vertices)
+  //   std::cerr << v << '\n'
+  //             << normals[&v] << "\n==================================\n";
 }
 
 Model::Model(const Model &other) {
@@ -243,4 +239,28 @@ bool Model::is_ear(const std::list<Coordinate *> &vertices,
     if (tri.is_in(**it)) return false;
 
   return true;
+}
+
+void Model::compute_normals() {
+  std::unordered_map<Coordinate *, std::vector<Triangle *>> m;
+
+  for (Triangle &tri : triangles) {
+    m[tri.vertices[0]].push_back(&tri);
+    m[tri.vertices[1]].push_back(&tri);
+    m[tri.vertices[2]].push_back(&tri);
+  }
+
+  for (Coordinate &v : vertices) {
+    std::vector<Triangle *> &surfaces = m[&v];
+
+    Coordinate dividend = Coordinate(0.0);
+    double divisor = 0.0;
+    for (Triangle *surface : surfaces) {
+      Coordinate normal = surface->normal();
+      dividend = dividend + normal;
+      divisor += normal.dist();
+    }
+    normals[&v] = (dividend / divisor).normalize();
+    // std::cerr << normals[&v].dist() << '\n';
+  }
 }

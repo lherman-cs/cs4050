@@ -36,6 +36,33 @@ bool find_closest_intersection(const std::vector<Triangle> &triangles,
   return intersected;
 }
 
+bool find_closest_intersection(
+    const std::vector<Triangle> &triangles,
+    std::unordered_map<Coordinate *, Coordinate> normals, const Coordinate &eye,
+    const Coordinate &direction, Triangle *closest,
+    Coordinate *intersected_point, Coordinate *normal) {
+  double closest_z = -DBL_MAX;
+  bool intersected = false;
+  double t, beta, gamma;
+  for (const Triangle &tri : triangles) {
+    if (tri.intersects(eye, direction, &t, &beta, &gamma)) {
+      Coordinate p = Coordinate(eye + direction * t);
+      if (p.z > closest_z) {
+        closest_z = p.z;
+        *closest = tri;
+        *intersected_point = p;
+        // *normal = tri.normal();
+        *normal = normals[tri.vertices[0]] * (1.0 - beta) +
+                  normals[tri.vertices[1]] * beta;
+        *normal = *normal * (1.0 - gamma) + normals[tri.vertices[2]] * gamma;
+        intersected = true;
+      }
+    }
+  }
+  *normal = normal->normalize();
+  return intersected;
+}
+
 bool is_shadowed(const std::vector<Triangle> &triangles, const Coordinate &eye,
                  const Coordinate &direction, const Triangle &surface) {
   double t;

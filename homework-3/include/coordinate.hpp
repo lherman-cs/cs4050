@@ -28,6 +28,7 @@ class Coordinate {
   double dot(const Coordinate &other) const;
   Coordinate cross(const Coordinate &other) const;
   Coordinate normalize() const;
+  double dist() const;
 };
 
 #endif

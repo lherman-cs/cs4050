@@ -51,6 +51,7 @@ Model *model;
 void init_display(const char *model_path);
 void display(void);
 void flat_shading();
+void smooth_shading();
 
 // Your functions
 void init_window(void);
@@ -135,6 +136,54 @@ void flat_shading() {
   }
 }
 
+void smooth_shading() {
+  static const Coordinate eye = {0.0, 0.0, 2.0};
+  static const Coordinate light = {0.0, 0.0, 2.0};
+  static const Color background = Color(1.0);
+  static const Color ambient = get_ambient();
+
+  for (int row = 0; row < HEIGHT; row++) {
+    for (int col = 0; col < WIDTH; col++) {
+      double normalized_row = (double)row / (HEIGHT - 1) - 0.5;
+      double normalized_col = (double)col / (WIDTH - 1) - 0.5;
+
+      Coordinate screen_pixel = Coordinate(normalized_col, normalized_row, 1.5);
+      Coordinate direction = (screen_pixel - eye).normalize();
+      Coordinate intersected_point = Coordinate();
+      Coordinate normal;
+      Triangle closest = Triangle();
+
+      // Determine the closest intersected triangle
+      bool intersected = find_closest_intersection(
+          model->triangles, model->normals, eye, direction, &closest,
+          &intersected_point, &normal);
+
+      // Calculate Phong Shading
+      if (intersected) {
+        Color illumination = ambient;
+        Coordinate to_source = (light - intersected_point).normalize();
+        Coordinate to_viewer = (eye - intersected_point).normalize();
+        if (normal.z < 0.0) normal = -normal;
+        Coordinate shadow_ray_eye = intersected_point;
+        Coordinate shadow_ray_direction = (light - shadow_ray_eye).normalize();
+
+        // std::cerr << normal << '\n';
+        intersected = is_shadowed(model->triangles, shadow_ray_eye,
+                                  shadow_ray_direction, closest);
+
+        if (!intersected)
+          illumination = illumination + get_diffuse(to_source, normal) +
+                         get_specular(to_source, normal, to_viewer);
+
+        write_pixel(col, row, illumination);
+      } else
+        write_pixel(col, row, background);
+    }
+  }
+
+  // std::cerr << "==================================================" << '\n';
+}
+
 void display(void) {}
 
 /***************************************************************************/
@@ -185,12 +234,21 @@ start a line or curve where the last one ended */
 /***************************************************************************/
 void keyboard(unsigned char key, int x, int y)  // Create Keyboard Function
 {
+  static bool smooth_shading_mode = false;
   switch (key) {
     case 27:    // When Escape Is Pressed...
       exit(0);  // Exit The Program
       break;
     case '1':  // stub for new screen
       printf("New screen\n");
+      break;
+    case 'x':
+      if (!smooth_shading_mode)
+        smooth_shading();
+      else
+        flat_shading();
+      smooth_shading_mode ^= 1;
+      glutSwapBuffers();
       break;
   }
 }
