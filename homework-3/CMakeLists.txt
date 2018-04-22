@@ -6,14 +6,7 @@ project(homework-3)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-if(NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE Release)
-endif()
-
-set(CMAKE_CXX_FLAGS "-Wall -Wextra")
-set(CMAKE_CXX_FLAGS_DEBUG "-g")
-set(CMAKE_CXX_FLAGS_RELEASE "-Ofast")
+set(CMAKE_CXX_FLAGS "-Wall -Wextra -Ofast -frename-registers -funroll-loops -fno-signed-zeros -fno-trapping-math") 
 
 include_directories(${PROJECT_SOURCE_DIR}/include)
 file(GLOB_RECURSE SRCS *.cc)
