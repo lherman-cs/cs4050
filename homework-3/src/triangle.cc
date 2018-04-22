@@ -31,8 +31,8 @@ std::ostream &operator<<(std::ostream &stream, const Triangle &tri) {
 
 // Return t parameter if it intersects
 // Else return infinity
-double Triangle::intersects(const Coordinate &eye,
-                            const Coordinate &direction) const {
+bool Triangle::intersects(const Coordinate &eye, const Coordinate &direction,
+                          double *t) const {
   Coordinate &a = *this->vertices[0];
   Coordinate &b = *this->vertices[1];
   Coordinate &c = *this->vertices[2];
@@ -45,12 +45,12 @@ double Triangle::intersects(const Coordinate &eye,
   Coordinate bary_b[3] = {a - eye, -ec, direction};
   Coordinate bary_c[3] = {-eb, a - eye, direction};
 
-  double t = det(bary_t) / det(bary_a);
+  *t = det(bary_t) / det(bary_a);
   double beta = det(bary_b) / det(bary_a);
   double gamma = det(bary_c) / det(bary_a);
 
-  if (t > 0 && beta > 0 && gamma > 0 && beta + gamma < 1) return t;
-  return NOT_INTERSECTED;
+  if (*t > 0 && beta > 0 && gamma > 0 && beta + gamma < 1) return true;
+  return false;
 }
 
 // is_in determines if p is in the triangle

@@ -1,4 +1,6 @@
 #include "utils.hpp"
+#include <float.h>
+#include <limits.h>
 #include <math.h>
 #include <algorithm>
 #include <iostream>
@@ -111,12 +113,11 @@ bool find_closest_intersection(const std::vector<Triangle> &triangles,
                                const Coordinate &eye,
                                const Coordinate &direction, Triangle *closest,
                                Coordinate *intersected_point) {
-  double closest_z = Triangle::NOT_INTERSECTED;
+  double closest_z = -DBL_MAX;
   bool intersected = false;
+  double t;
   for (const Triangle &tri : triangles) {
-    double t = tri.intersects(eye, direction);
-
-    if (t != Triangle::NOT_INTERSECTED) {
+    if (tri.intersects(eye, direction, &t)) {
       Coordinate p = Coordinate(eye + direction * t);
       if (p.z > closest_z) {
         closest_z = p.z;
@@ -131,13 +132,11 @@ bool find_closest_intersection(const std::vector<Triangle> &triangles,
 
 bool is_shadowed(const std::vector<Triangle> &triangles, const Coordinate &eye,
                  const Coordinate &direction, const Triangle &surface) {
-  for (const Triangle &tri : triangles) {
-    if (tri != surface) {
-      double t = tri.intersects(eye, direction);
+  double t;
+  for (const Triangle &tri : triangles)
+    if (tri != surface)
+      if (tri.intersects(eye, direction, &t)) return true;
 
-      if (t != Triangle::NOT_INTERSECTED) return true;
-    }
-  }
   return false;
 }
 
