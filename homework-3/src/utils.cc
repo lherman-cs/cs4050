@@ -1,6 +1,6 @@
 #include "utils.hpp"
 #include <float.h>
-#include <math.h>
+#include <cmath>
 #include <iostream>
 #include <limits>
 

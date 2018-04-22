@@ -1,9 +1,9 @@
 #include "model.hpp"
 #include <float.h>
 #include <limits.h>
-#include <math.h>
 #include <string.h>
 #include <algorithm>
+#include <cmath>
 #include <fstream>
 #include <iostream>
 #include <sstream>

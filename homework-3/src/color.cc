@@ -1,5 +1,5 @@
 #include "color.hpp"
-#include <math.h>
+#include <cmath>
 #include <utility>
 
 Color::Color(double red, double green, double blue)

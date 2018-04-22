@@ -21,7 +21,6 @@
 #include <GL/glut.h>  // The GL Utility Toolkit (Glut) Header
 
 #include <assert.h>
-#include <math.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -29,6 +28,7 @@
 #include <time.h>
 #include <unistd.h>
 #include <algorithm>
+#include <cmath>
 #include <iostream>
 #include <limits>
 #include <numeric>
