@@ -92,8 +92,8 @@ void init_display(const char *model_path) {
 }
 
 void render() {
-  static const Coordinate eye = {0.0, 0.0, 1.0};
-  static const Coordinate light = {0.0, 0.0, 1.0};
+  static const Coordinate eye = {0.0, 0.0, 2.0};
+  static const Coordinate light = {0.0, 0.0, 2.0};
   static const Color background = Color(1.0);
   static const Color ambient = get_ambient();
 
@@ -102,7 +102,7 @@ void render() {
       double normalized_row = (double)row / (HEIGHT - 1) - 0.5;
       double normalized_col = (double)col / (WIDTH - 1) - 0.5;
 
-      Coordinate screen_pixel = Coordinate(normalized_col, normalized_row, 0.7);
+      Coordinate screen_pixel = Coordinate(normalized_col, normalized_row, 1.5);
       Coordinate direction = (screen_pixel - eye).normalize();
       Coordinate intersected_point = Coordinate();
       Triangle closest = Triangle();
