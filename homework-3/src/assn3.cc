@@ -50,7 +50,7 @@ Model *model;
 // My functions
 void init_display(const char *model_path);
 void display(void);
-void render();
+void flat_shading();
 
 // Your functions
 void init_window(void);
@@ -87,11 +87,11 @@ using the escape key.						  */
 // My functions start here
 void init_display(const char *model_path) {
   model = new Model(model_path);
-  render();
+  flat_shading();
   glutSwapBuffers();
 }
 
-void render() {
+void flat_shading() {
   static const Coordinate eye = {0.0, 0.0, 2.0};
   static const Coordinate light = {0.0, 0.0, 2.0};
   static const Color background = Color(1.0);
