@@ -165,7 +165,6 @@ void smooth_shading() {
         Coordinate shadow_ray_eye = intersected_point;
         Coordinate shadow_ray_direction = (light - shadow_ray_eye).normalize();
 
-        // std::cerr << normal << '\n';
         intersected = is_shadowed(model->triangles, shadow_ray_eye,
                                   shadow_ray_direction, closest);
 
@@ -178,8 +177,6 @@ void smooth_shading() {
         write_pixel(col, row, background);
     }
   }
-
-  // std::cerr << "==================================================" << '\n';
 }
 
 void display(void) {}

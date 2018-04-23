@@ -51,10 +51,9 @@ bool find_closest_intersection(
         closest_z = p.z;
         *closest = tri;
         *intersected_point = p;
-        // *normal = tri.normal();
-        *normal = normals[tri.vertices[0]] * (1.0 - beta) +
-                  normals[tri.vertices[1]] * beta;
-        *normal = *normal * (1.0 - gamma) + normals[tri.vertices[2]] * gamma;
+        *normal = normals[tri.vertices[0]] * (1.0 - beta - gamma) +
+                  normals[tri.vertices[1]] * beta +
+                  normals[tri.vertices[2]] * gamma;
         intersected = true;
       }
     }

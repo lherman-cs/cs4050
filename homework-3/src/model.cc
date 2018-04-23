@@ -9,6 +9,7 @@
 #include <sstream>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include "utils.hpp"
 
 // Helper to read vertex
@@ -99,9 +100,6 @@ Model::Model(const char *model_file) {
 
   normalize();
   compute_normals();
-  // for (Coordinate &v : vertices)
-  //   std::cerr << v << '\n'
-  //             << normals[&v] << "\n==================================\n";
 }
 
 Model::Model(const Model &other) {
@@ -242,25 +240,22 @@ bool Model::is_ear(const std::list<Coordinate *> &vertices,
 }
 
 void Model::compute_normals() {
-  std::unordered_map<Coordinate *, std::vector<Triangle *>> m;
+  std::unordered_map<Coordinate *, std::unordered_set<Triangle *>> m;
 
   for (Triangle &tri : triangles) {
-    m[tri.vertices[0]].push_back(&tri);
-    m[tri.vertices[1]].push_back(&tri);
-    m[tri.vertices[2]].push_back(&tri);
+    m[tri.vertices[0]].insert(&tri);
+    m[tri.vertices[1]].insert(&tri);
+    m[tri.vertices[2]].insert(&tri);
   }
 
   for (Coordinate &v : vertices) {
-    std::vector<Triangle *> &surfaces = m[&v];
-
     Coordinate dividend = Coordinate(0.0);
     double divisor = 0.0;
-    for (Triangle *surface : surfaces) {
-      Coordinate normal = surface->normal();
+    for (auto it = m[&v].begin(); it != m[&v].end(); it++) {
+      Coordinate normal = (*it)->normal();
       dividend = dividend + normal;
       divisor += normal.dist();
     }
     normals[&v] = (dividend / divisor).normalize();
-    // std::cerr << normals[&v].dist() << '\n';
   }
 }
