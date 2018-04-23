@@ -40,8 +40,7 @@ bool is_shadowed(const std::vector<Triangle> &triangles, const Coordinate &eye,
                  const Coordinate &direction, const Triangle &surface) {
   double t;
   for (const Triangle &tri : triangles)
-    if (tri != surface)
-      if (tri.intersects(eye, direction, &t)) return true;
+    if (tri != surface && tri.intersects(eye, direction, &t)) return true;
 
   return false;
 }
