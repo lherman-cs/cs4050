@@ -71,7 +71,7 @@ bool Triangle::intersects(const Coordinate &eye, const Coordinate &direction,
   *beta = det(bary_b) / det(bary_a);
   *gamma = det(bary_c) / det(bary_a);
 
-  if (*t > 0 && *beta > 0 && *gamma > 0 && *beta + *gamma < 1) return true;
+  if (*t > 0 && *beta >= 0 && *gamma >= 0 && *beta + *gamma <= 1) return true;
   return false;
 }
 
