@@ -6,7 +6,7 @@ project(homework-3)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_FLAGS "-g -Wall -Wextra -Ofast -frename-registers -funroll-loops -fno-signed-zeros -fno-trapping-math") 
+set(CMAKE_CXX_FLAGS "-Wall -Wextra -Ofast -frename-registers -funroll-loops -fno-signed-zeros -fno-trapping-math") 
 
 include_directories(${PROJECT_SOURCE_DIR}/include)
 file(GLOB_RECURSE SRCS *.cc)
