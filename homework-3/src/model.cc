@@ -151,12 +151,13 @@ Coordinate Model::get_min() {
 // they fit into the screen. Then, move the polygons
 // to the middle of the screen
 void Model::normalize() {
-  // Normalize
+  move(Coordinate(0.0));
   Coordinate max = get_max(), min = get_min();
-  Coordinate mv = -(min + max) / 2.0;
-  Coordinate scl = max - min;
+  double scl_max = std::max(std::max(max.x, max.y), max.z);
+  double scl_min = std::min(std::min(min.x, min.y), min.z);
+  double scl = (scl_max - scl_min) / 2.0;
 
-  for (auto &v : vertices) v = (v + mv) * 2.0 / scl;
+  for (auto &v : vertices) v = ((v - scl_min) / scl - 1.0) * 0.95;
 }
 
 // Move to the given vertex as a center
