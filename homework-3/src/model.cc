@@ -253,7 +253,7 @@ void Model::compute_normals() {
     Coordinate dividend = Coordinate(0.0);
     double divisor = 0.0;
     for (auto it = m[&v].begin(); it != m[&v].end(); it++) {
-      Coordinate normal = (*it)->normal();
+      Coordinate normal = (*it)->normal;
       dividend = dividend + normal;
       divisor += normal.dist();
     }

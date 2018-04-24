@@ -1,5 +1,6 @@
 #include "triangle.hpp"
 #include <limits>
+#include <utility>
 
 double det(const Coordinate coords[3]) {
   return coords[0].x * (coords[1].y * coords[2].z - coords[1].z * coords[2].y) -
@@ -8,9 +9,41 @@ double det(const Coordinate coords[3]) {
 }
 
 Triangle::Triangle(Coordinate *a, Coordinate *b, Coordinate *c)
-    : vertices{a, b, c} {}
+    : vertices{a, b, c} {
+  normal = get_normal();
+}
 
 Triangle::Triangle() : vertices{nullptr, nullptr, nullptr} {}
+
+Triangle::Triangle(const Triangle &other) {
+  vertices[0] = other.vertices[0];
+  vertices[1] = other.vertices[1];
+  vertices[2] = other.vertices[2];
+  normal = other.normal;
+}
+
+Triangle::Triangle(Triangle &&other) {
+  vertices[0] = std::move(other.vertices[0]);
+  vertices[1] = std::move(other.vertices[1]);
+  vertices[2] = std::move(other.vertices[2]);
+  normal = std::move(other.normal);
+}
+
+Triangle &Triangle::operator=(const Triangle &other) {
+  vertices[0] = other.vertices[0];
+  vertices[1] = other.vertices[1];
+  vertices[2] = other.vertices[2];
+  normal = other.normal;
+  return *this;
+}
+
+Triangle &Triangle::operator=(Triangle &&other) {
+  vertices[0] = std::move(other.vertices[0]);
+  vertices[1] = std::move(other.vertices[1]);
+  vertices[2] = std::move(other.vertices[2]);
+  normal = std::move(other.normal);
+  return *this;
+}
 
 bool Triangle::operator==(const Triangle &other) const {
   return vertices[0] == other.vertices[0] && vertices[1] == other.vertices[1] &&
@@ -105,7 +138,7 @@ bool Triangle::is_empty() const {
 }
 
 // Get a normalized normal from a triangle
-Coordinate Triangle::normal() const {
+Coordinate Triangle::get_normal() const {
   Coordinate &p1 = *this->vertices[0];
   Coordinate &p2 = *this->vertices[1];
   Coordinate &p3 = *this->vertices[2];

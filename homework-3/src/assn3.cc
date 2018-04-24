@@ -117,7 +117,7 @@ void flat_shading() {
         Color illumination = ambient;
         Coordinate to_source = (light - intersected_point).normalize();
         Coordinate to_viewer = (eye - intersected_point).normalize();
-        Coordinate normal = closest.normal();
+        Coordinate normal = closest.normal;
         Coordinate shadow_ray_eye = intersected_point;
         Coordinate shadow_ray_direction = (light - shadow_ray_eye).normalize();
 
