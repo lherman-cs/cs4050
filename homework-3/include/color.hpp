@@ -10,6 +10,7 @@ class Color {
   Color(double scalar);
   Color(const Color &other);
   Color(Color &&other);
+  Color();
   Color &operator=(const Color &other);
   Color &operator=(Color &&other);
   Color operator+(const Color &other) const;
