@@ -8,14 +8,10 @@
 #include "model.hpp"
 #include "triangle.hpp"
 
-bool find_closest_intersection(const std::vector<Triangle> &triangles,
-                               const Coordinate &eye,
-                               const Coordinate &direction, Triangle *closest,
-                               Coordinate *intersected_point);
 bool find_closest_intersection(
     const std::vector<Triangle> &triangles,
-    std::unordered_map<Coordinate *, Coordinate> normals, const Coordinate &eye,
-    const Coordinate &direction, Triangle *closest,
+    std::unordered_map<Coordinate *, Coordinate> &normals,
+    const Coordinate &eye, const Coordinate &direction, Triangle *closest,
     Coordinate *intersected_point, Coordinate *normal);
 bool is_shadowed(const std::vector<Triangle> &triangles, const Coordinate &eye,
                  const Coordinate &direction, const Triangle &surface);

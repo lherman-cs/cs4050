@@ -62,30 +62,6 @@ std::ostream &operator<<(std::ostream &stream, const Triangle &tri) {
   return stream;
 }
 
-// Return t parameter if it intersects
-// Else return infinity
-bool Triangle::intersects(const Coordinate &eye, const Coordinate &direction,
-                          double *t) const {
-  Coordinate &a = *this->vertices[0];
-  Coordinate &b = *this->vertices[1];
-  Coordinate &c = *this->vertices[2];
-
-  Coordinate eb = b - a;
-  Coordinate ec = c - a;
-
-  Coordinate bary_t[3] = {-eb, -ec, a - eye};
-  Coordinate bary_a[3] = {-eb, -ec, direction};
-  Coordinate bary_b[3] = {a - eye, -ec, direction};
-  Coordinate bary_c[3] = {-eb, a - eye, direction};
-
-  *t = det(bary_t) / det(bary_a);
-  double beta = det(bary_b) / det(bary_a);
-  double gamma = det(bary_c) / det(bary_a);
-
-  if (*t > 0 && beta >= 0 && gamma >= 0 && beta + gamma <= 1) return true;
-  return false;
-}
-
 bool Triangle::intersects(const Coordinate &eye, const Coordinate &direction,
                           double *t, double *beta, double *gamma) const {
   Coordinate &a = *this->vertices[0];
@@ -100,11 +76,15 @@ bool Triangle::intersects(const Coordinate &eye, const Coordinate &direction,
   Coordinate bary_b[3] = {a - eye, -ec, direction};
   Coordinate bary_c[3] = {-eb, a - eye, direction};
 
-  *t = det(bary_t) / det(bary_a);
-  *beta = det(bary_b) / det(bary_a);
-  *gamma = det(bary_c) / det(bary_a);
+  double t_ = det(bary_t) / det(bary_a);
+  double beta_ = det(bary_b) / det(bary_a);
+  double gamma_ = det(bary_c) / det(bary_a);
 
-  if (*t > 0 && *beta >= 0 && *gamma >= 0 && *beta + *gamma <= 1) return true;
+  if (t != nullptr) *t = t_;
+  if (beta != nullptr) *beta = beta_;
+  if (gamma != nullptr) *gamma = gamma_;
+
+  if (t_ > 0 && beta_ >= 0 && gamma_ >= 0 && beta_ + gamma_ <= 1) return true;
   return false;
 }
 

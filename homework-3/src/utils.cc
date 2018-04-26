@@ -15,35 +15,15 @@
 //  closests: in place return the closest triangle
 //  intersected_point: in place return the closest intersected point
 //  a bool if there is an intersection or not
-bool find_closest_intersection(const std::vector<Triangle> &triangles,
-                               const Coordinate &eye,
-                               const Coordinate &direction, Triangle *closest,
-                               Coordinate *intersected_point) {
-  double closest_z = -DBL_MAX;
-  bool intersected = false;
-  double t;
-  for (const Triangle &tri : triangles) {
-    if (tri.intersects(eye, direction, &t)) {
-      Coordinate p = Coordinate(eye + direction * t);
-      if (p.z > closest_z) {
-        closest_z = p.z;
-        *closest = tri;
-        *intersected_point = p;
-        intersected = true;
-      }
-    }
-  }
-  return intersected;
-}
-
 bool find_closest_intersection(
     const std::vector<Triangle> &triangles,
-    std::unordered_map<Coordinate *, Coordinate> normals, const Coordinate &eye,
-    const Coordinate &direction, Triangle *closest,
+    std::unordered_map<Coordinate *, Coordinate> &normals,
+    const Coordinate &eye, const Coordinate &direction, Triangle *closest,
     Coordinate *intersected_point, Coordinate *normal) {
   double closest_z = -DBL_MAX;
   bool intersected = false;
   double t, beta, gamma;
+  double c_beta, c_gamma;  // Closest beta and gamma
   for (const Triangle &tri : triangles) {
     if (tri.intersects(eye, direction, &t, &beta, &gamma)) {
       Coordinate p = Coordinate(eye + direction * t);
@@ -51,14 +31,20 @@ bool find_closest_intersection(
         closest_z = p.z;
         *closest = tri;
         *intersected_point = p;
-        *normal = normals[tri.vertices[0]] * (1.0 - beta - gamma) +
-                  normals[tri.vertices[1]] * beta +
-                  normals[tri.vertices[2]] * gamma;
         intersected = true;
+        c_beta = beta;
+        c_gamma = gamma;
       }
     }
   }
-  *normal = normal->normalize();
+
+  if (normal != nullptr) {
+    *normal = normals[closest->vertices[0]] * (1.0 - c_beta - c_gamma) +
+              normals[closest->vertices[1]] * c_beta +
+              normals[closest->vertices[2]] * c_gamma;
+    *normal = normal->normalize();
+  }
+
   return intersected;
 }
 
@@ -66,7 +52,8 @@ bool is_shadowed(const std::vector<Triangle> &triangles, const Coordinate &eye,
                  const Coordinate &direction, const Triangle &surface) {
   double t;
   for (const Triangle &tri : triangles)
-    if (tri != surface && tri.intersects(eye, direction, &t)) return true;
+    if (tri != surface && tri.intersects(eye, direction, &t, nullptr, nullptr))
+      return true;
 
   return false;
 }

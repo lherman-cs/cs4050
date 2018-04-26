@@ -49,6 +49,10 @@
 int x_last, y_last;
 Model *model;
 double bm[HEIGHT][WIDTH] = {0};
+static const Coordinate eye = {0.0, 0.0, 2.0};
+static const Coordinate light = {0.0, 0.0, 2.0};
+static const Color background = Color(1.0);
+static const Color ambient = get_ambient();
 
 // My functions
 void init_display(const char *model_path);
@@ -99,11 +103,6 @@ void init_display(const char *model_path) {
 }
 
 void flat_shading() {
-  static const Coordinate eye = {0.0, 0.0, 2.0};
-  static const Coordinate light = {0.0, 0.0, 2.0};
-  static const Color background = Color(1.0);
-  static const Color ambient = get_ambient();
-
   for (int row = 0; row < HEIGHT; row++) {
     for (int col = 0; col < WIDTH; col++) {
       double normalized_row = (double)row / (HEIGHT - 1) - 0.5;
@@ -116,7 +115,8 @@ void flat_shading() {
 
       // Determine the closest intersected triangle
       bool intersected = find_closest_intersection(
-          model->triangles, eye, direction, &closest, &intersected_point);
+          model->triangles, model->normals, eye, direction, &closest,
+          &intersected_point, nullptr);
 
       // Calculate Phong Shading
       if (intersected) {
@@ -142,11 +142,6 @@ void flat_shading() {
 }
 
 void smooth_shading() {
-  static const Coordinate eye = {0.0, 0.0, 2.0};
-  static const Coordinate light = {0.0, 0.0, 2.0};
-  static const Color background = Color(1.0);
-  static const Color ambient = get_ambient();
-
   for (int row = 0; row < HEIGHT; row++) {
     for (int col = 0; col < WIDTH; col++) {
       double normalized_row = (double)row / (HEIGHT - 1) - 0.5;
@@ -206,11 +201,6 @@ void set_bump_map(double bm[][WIDTH]) {
 }
 
 void bump_mapping() {
-  static const Coordinate eye = {0.0, 0.0, 2.0};
-  static const Coordinate light = {0.0, 0.0, 2.0};
-  static const Color background = Color(1.0);
-  static const Color ambient = get_ambient();
-
   for (int row = 0; row < HEIGHT; row++) {
     for (int col = 0; col < WIDTH; col++) {
       double normalized_row = (double)row / (HEIGHT - 1) - 0.5;
@@ -223,7 +213,8 @@ void bump_mapping() {
 
       // Determine the closest intersected triangle
       bool intersected = find_closest_intersection(
-          model->triangles, eye, direction, &closest, &intersected_point);
+          model->triangles, model->normals, eye, direction, &closest,
+          &intersected_point, nullptr);
 
       // Calculate Phong Shading
       if (intersected) {

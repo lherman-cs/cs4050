@@ -19,8 +19,6 @@ class Triangle {
   bool operator==(const Triangle &other) const;
   bool operator!=(const Triangle &other) const;
   friend std::ostream &operator<<(std::ostream &stream, const Triangle &tri);
-  bool intersects(const Coordinate &eye, const Coordinate &direction,
-                  double *t) const;
   bool intersects(const Coordinate &eye, const Coordinate &direction, double *t,
                   double *beta, double *gamma) const;
   bool is_in(const Coordinate &point) const;
