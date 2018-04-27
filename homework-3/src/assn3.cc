@@ -45,6 +45,8 @@
 #define HEIGHT 800
 #define SCALE 0.8
 #define BUMP_MAP_FILE "bump_map.pgm"
+#define SMOOTH 1
+#define BUMPY 2
 
 int x_last, y_last;
 Model *model;
@@ -57,10 +59,8 @@ static const Color ambient = get_ambient();
 // My functions
 void init_display(const char *model_path);
 void display(void);
-void flat_shading();
-void smooth_shading();
+void render(int mode);
 void set_bump_map(double bm[][WIDTH]);
-void bump_mapping();
 
 // Your functions
 void init_window(void);
@@ -98,73 +98,54 @@ using the escape key.						  */
 void init_display(const char *model_path) {
   model = new Model(model_path);
   set_bump_map(bm);
-  flat_shading();
+  render(0);
   glutSwapBuffers();
 }
 
-void flat_shading() {
-  for (int row = 0; row < HEIGHT; row++) {
-    for (int col = 0; col < WIDTH; col++) {
-      double normalized_row = (double)row / (HEIGHT - 1) - 0.5;
-      double normalized_col = (double)col / (WIDTH - 1) - 0.5;
+void render(int mode) {
+  int row, col;
+  double n_row, n_col;  // Normalized row and col
+  bool intersected;
+  Coordinate normal, screen_pixel, direction, intersected_point, to_source,
+      to_viewer, shadow_ray_eye, shadow_ray_direction;
+  Color illumination;
+  Triangle closest;
 
-      Coordinate screen_pixel = Coordinate(normalized_col, normalized_row, 1.5);
-      Coordinate direction = (screen_pixel - eye).normalize();
-      Coordinate intersected_point = Coordinate();
-      Triangle closest = Triangle();
+  for (row = 0; row < HEIGHT; row++) {
+    for (col = 0; col < WIDTH; col++) {
+      n_row = (double)row / (HEIGHT - 1) - 0.5;
+      n_col = (double)col / (WIDTH - 1) - 0.5;
+
+      screen_pixel = Coordinate(n_col, n_row, 1.5);
+      direction = (screen_pixel - eye).normalize();
+      intersected_point = Coordinate();
+      closest = Triangle();
 
       // Determine the closest intersected triangle
-      bool intersected = find_closest_intersection(
-          model->triangles, model->normals, eye, direction, &closest,
-          &intersected_point, nullptr);
+      switch (mode & 1) {
+        case 0:  // Flat shading
+        default:
+          intersected = find_closest_intersection(
+              model->triangles, model->normals, eye, direction, &closest,
+              &intersected_point, nullptr);
+          normal = closest.normal;
+          break;
+        case 1:  // Smooth shading
+          intersected = find_closest_intersection(
+              model->triangles, model->normals, eye, direction, &closest,
+              &intersected_point, &normal);
+          break;
+      }
+
+      if (mode >> 1) normal = normal * bm[row][col];
 
       // Calculate Phong Shading
       if (intersected) {
         Color illumination = ambient;
-        Coordinate to_source = (light - intersected_point).normalize();
-        Coordinate to_viewer = (eye - intersected_point).normalize();
-        Coordinate normal = closest.normal;
-        Coordinate shadow_ray_eye = intersected_point;
-        Coordinate shadow_ray_direction = (light - shadow_ray_eye).normalize();
-
-        intersected = is_shadowed(model->triangles, shadow_ray_eye,
-                                  shadow_ray_direction, closest);
-
-        if (!intersected)
-          illumination = illumination + get_diffuse(to_source, normal) +
-                         get_specular(to_source, normal, to_viewer);
-
-        write_pixel(col, row, illumination);
-      } else
-        write_pixel(col, row, background);
-    }
-  }
-}
-
-void smooth_shading() {
-  for (int row = 0; row < HEIGHT; row++) {
-    for (int col = 0; col < WIDTH; col++) {
-      double normalized_row = (double)row / (HEIGHT - 1) - 0.5;
-      double normalized_col = (double)col / (WIDTH - 1) - 0.5;
-
-      Coordinate screen_pixel = Coordinate(normalized_col, normalized_row, 1.5);
-      Coordinate direction = (screen_pixel - eye).normalize();
-      Coordinate intersected_point = Coordinate();
-      Coordinate normal;
-      Triangle closest = Triangle();
-
-      // Determine the closest intersected triangle
-      bool intersected = find_closest_intersection(
-          model->triangles, model->normals, eye, direction, &closest,
-          &intersected_point, &normal);
-
-      // Calculate Phong Shading
-      if (intersected) {
-        Color illumination = ambient;
-        Coordinate to_source = (light - intersected_point).normalize();
-        Coordinate to_viewer = (eye - intersected_point).normalize();
-        Coordinate shadow_ray_eye = intersected_point;
-        Coordinate shadow_ray_direction = (light - shadow_ray_eye).normalize();
+        to_source = (light - intersected_point).normalize();
+        to_viewer = (eye - intersected_point).normalize();
+        shadow_ray_eye = intersected_point;
+        shadow_ray_direction = (light - shadow_ray_eye).normalize();
 
         intersected = is_shadowed(model->triangles, shadow_ray_eye,
                                   shadow_ray_direction, closest);
@@ -184,7 +165,7 @@ void set_bump_map(double bm[][WIDTH]) {
   std::ifstream fin(BUMP_MAP_FILE);
 
   std::string type;
-  unsigned width, height, max_bit;
+  int width, height, max_bit;
 
   fin >> type >> width >> height >> max_bit;
   if (!(type == "P2" || type == "P5"))
@@ -198,45 +179,6 @@ void set_bump_map(double bm[][WIDTH]) {
   }
 
   fin.close();
-}
-
-void bump_mapping() {
-  for (int row = 0; row < HEIGHT; row++) {
-    for (int col = 0; col < WIDTH; col++) {
-      double normalized_row = (double)row / (HEIGHT - 1) - 0.5;
-      double normalized_col = (double)col / (WIDTH - 1) - 0.5;
-
-      Coordinate screen_pixel = Coordinate(normalized_col, normalized_row, 1.5);
-      Coordinate direction = (screen_pixel - eye).normalize();
-      Coordinate intersected_point = Coordinate();
-      Triangle closest = Triangle();
-
-      // Determine the closest intersected triangle
-      bool intersected = find_closest_intersection(
-          model->triangles, model->normals, eye, direction, &closest,
-          &intersected_point, nullptr);
-
-      // Calculate Phong Shading
-      if (intersected) {
-        Color illumination = ambient;
-        Coordinate to_source = (light - intersected_point).normalize();
-        Coordinate to_viewer = (eye - intersected_point).normalize();
-        Coordinate normal = closest.normal * bm[row][col];
-        Coordinate shadow_ray_eye = intersected_point;
-        Coordinate shadow_ray_direction = (light - shadow_ray_eye).normalize();
-
-        intersected = is_shadowed(model->triangles, shadow_ray_eye,
-                                  shadow_ray_direction, closest);
-
-        if (!intersected)
-          illumination = illumination + get_diffuse(to_source, normal) +
-                         get_specular(to_source, normal, to_viewer);
-
-        write_pixel(col, row, illumination);
-      } else
-        write_pixel(col, row, background);
-    }
-  }
 }
 
 void display(void) {}
@@ -289,7 +231,7 @@ start a line or curve where the last one ended */
 /***************************************************************************/
 void keyboard(unsigned char key, int x, int y)  // Create Keyboard Function
 {
-  static bool smooth_shading_mode = false;
+  static int mode = 0;
   switch (key) {
     case 27:    // When Escape Is Pressed...
       exit(0);  // Exit The Program
@@ -298,15 +240,13 @@ void keyboard(unsigned char key, int x, int y)  // Create Keyboard Function
       printf("New screen\n");
       break;
     case 'x':
-      if (!smooth_shading_mode)
-        smooth_shading();
-      else
-        flat_shading();
-      smooth_shading_mode ^= 1;
+      mode = (mode & 2) | ((mode & 1) ^ 1);
+      render(mode);
       glutSwapBuffers();
       break;
     case 'b':
-      bump_mapping();
+      mode = ((mode & 2) ^ 2) | (mode & 1);
+      render(mode);
       glutSwapBuffers();
       break;
   }
