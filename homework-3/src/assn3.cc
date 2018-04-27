@@ -43,7 +43,6 @@
 
 #define WIDTH 800
 #define HEIGHT 800
-#define SCALE 0.8
 #define BUMP_MAP_FILE "bump_map.pgm"
 #define SMOOTH 1
 #define BUMPY 2
@@ -125,15 +124,13 @@ void render(int mode) {
       switch (mode & 1) {
         case 0:  // Flat shading
         default:
-          intersected = find_closest_intersection(
-              model->triangles, model->normals, eye, direction, &closest,
-              &intersected_point, nullptr);
+          intersected = model->find_closest_intersection(
+              eye, direction, &closest, &intersected_point, nullptr);
           normal = closest.normal;
           break;
         case 1:  // Smooth shading
-          intersected = find_closest_intersection(
-              model->triangles, model->normals, eye, direction, &closest,
-              &intersected_point, &normal);
+          intersected = model->find_closest_intersection(
+              eye, direction, &closest, &intersected_point, &normal);
           break;
       }
 
@@ -147,8 +144,8 @@ void render(int mode) {
         shadow_ray_eye = intersected_point;
         shadow_ray_direction = (light - shadow_ray_eye).normalize();
 
-        intersected = is_shadowed(model->triangles, shadow_ray_eye,
-                                  shadow_ray_direction, closest);
+        intersected =
+            model->is_shadowed(shadow_ray_eye, shadow_ray_direction, closest);
 
         if (!intersected)
           illumination = illumination + get_diffuse(to_source, normal) +

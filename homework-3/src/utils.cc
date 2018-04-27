@@ -4,60 +4,6 @@
 #include <iostream>
 #include <limits>
 
-// Find the closest intersection based on the z axis.
-// The more positive, the closer the triangle is.
-// Parameters:
-//  faces: a list of triangles
-//  eye: a coordinate where the eye is
-//  direction: a unit vector from the eye to a point
-//
-// Returns:
-//  closests: in place return the closest triangle
-//  intersected_point: in place return the closest intersected point
-//  a bool if there is an intersection or not
-bool find_closest_intersection(
-    const std::vector<Triangle> &triangles,
-    std::unordered_map<Coordinate *, Coordinate> &normals,
-    const Coordinate &eye, const Coordinate &direction, Triangle *closest,
-    Coordinate *intersected_point, Coordinate *normal) {
-  double closest_z = -DBL_MAX;
-  bool intersected = false;
-  double t, beta, gamma;
-  double c_beta, c_gamma;  // Closest beta and gamma
-  for (const Triangle &tri : triangles) {
-    if (tri.intersects(eye, direction, &t, &beta, &gamma)) {
-      Coordinate p = Coordinate(eye + direction * t);
-      if (p.z > closest_z) {
-        closest_z = p.z;
-        *closest = tri;
-        *intersected_point = p;
-        intersected = true;
-        c_beta = beta;
-        c_gamma = gamma;
-      }
-    }
-  }
-
-  if (normal != nullptr) {
-    *normal = normals[closest->vertices[0]] * (1.0 - c_beta - c_gamma) +
-              normals[closest->vertices[1]] * c_beta +
-              normals[closest->vertices[2]] * c_gamma;
-    *normal = normal->normalize();
-  }
-
-  return intersected;
-}
-
-bool is_shadowed(const std::vector<Triangle> &triangles, const Coordinate &eye,
-                 const Coordinate &direction, const Triangle &surface) {
-  double t;
-  for (const Triangle &tri : triangles)
-    if (tri != surface && tri.intersects(eye, direction, &t, nullptr, nullptr))
-      return true;
-
-  return false;
-}
-
 // Calculate diffuse illumination using phong shading
 // Parameters:
 //  to_source: a normalized vector from a point on a surface to the light

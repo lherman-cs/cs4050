@@ -21,6 +21,13 @@ class Model {
   Model(const char *model_file);
   Model(const Model &other);
 
+  bool find_closest_intersection(const Coordinate &eye,
+                                 const Coordinate &direction, Triangle *closest,
+                                 Coordinate *intersected_point,
+                                 Coordinate *normal);
+  bool is_shadowed(const Coordinate &eye, const Coordinate &direction,
+                   const Triangle &surface);
+
  private:
   void read_triangle(std::istringstream &sin);
   void read_triangle_(std::list<Coordinate *> &vertices);
