@@ -4,7 +4,7 @@ This project is about ray tracing and shading 3D object models from any wavefron
 
 - [x] Flat Shading (50 pts)
 - [x] Smooth Shading / Phong Smoothing (20 pts)
-- [ ] Bump Mapping (20 pts)
+- [x] Bump Mapping (20 pts)
 - [x] Triangle Remesh (20 pts)
 - [x] Well Documentation (10 pts)
 
@@ -60,9 +60,37 @@ Suzanne - the blender monkey
 
 ![1524542972843](assets/1524542972843.png)
 
+
+
 ##Smooth Shading / Phong Smoothing
 
 This implementation is pretty much similar to the flat shading. The only differences are just that I needed to calculate the vertex normals and use the vertex normals and bilinear interpolation to do the phong shading. 
+
+
+
+## Bump Mapping
+
+For this particular task, I didn't do only bump mapping, but bump mapping combined with texture. It's very similar to the example on the slides where you have a can of soda and bubbles as the bump map. Then, when they're combined it becomes a realistic cold can of soda.
+
+Following is how my bump mapping works:
+
+* I have a program that can resize and convert png, jpeg, and gif images to pgm. (It's called convert.go. In the submission, I've provided a statically compiled program called "convert").  The program will then process the image and name the converted image, "bump_map.png"
+
+  ```shell
+  cat your_image.png | ./convert 800 800
+  ```
+
+  ​
+
+* Then, my c++ program will read that converted image and store it in a 2D array and use it as the bump map (the c++ program will read the texture implicitly)
+
+  ```sh
+  make test
+  ```
+
+  ​
+
+*Note: I chose pgm format because it's very easy to be parsed*
 
 
 
